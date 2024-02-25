@@ -58,8 +58,31 @@ enum e_token_code {
     TOKEN_LAST
 };
 
+struct symbol;
+
+typedef struct type {
+    int t;
+    struct symbol *ref;
+} type_t;
+
+typedef struct symbol {
+    int v;          /* token code */
+    int r;          /* register */
+    int c;          /* relative */
+    struct type type;
+    struct symbol *next;
+    struct symbol *prev;
+} symbol_t;
+
 typedef struct token {
     int token_code;
+    struct token *next; /* the synonym in the linked list */
+    char *spelling;
+    struct symbol *sym_struct;
+    struct symbol *sym_identifier;
 } token_t;
+
+#define ALIGNMENT_SIZE          (2)
+#define GET_ALIGNMENT(size)     (((size + ALIGNMENT_SIZE - 1) / ALIGNMENT_SIZE) * ALIGNMENT_SIZE)
 
 #endif

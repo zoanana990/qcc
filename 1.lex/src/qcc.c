@@ -1,6 +1,12 @@
 #include <qcc.h>
+#include <qarr.h>
+#include <stdio.h>
 
-#define MAXKEY          (1024)
+#define MAX_KEY                  (1024)
+
+token_t     token_hashtable[MAX_KEY];
+qarr_t      token_table;
+
 
 int elf_hash(char *key) {
     int h=0, g;
@@ -12,5 +18,33 @@ int elf_hash(char *key) {
         h &= ~g;
     }
 
-    return h % MAXKEY;
+    return h % MAX_KEY;
+}
+
+void init_lex() {
+    token_t *tp;
+    static token_t keywords[] = {
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_MINUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+        {TOKEN_PLUS, NULL, "+", NULL, NULL},
+
+    };
+}
+
+int main(int argc, char **argv) {
+    init_lex();
+    return 0;
 }

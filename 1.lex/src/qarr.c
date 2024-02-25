@@ -2,6 +2,7 @@
 #include <qarr.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <qcc.h>
 
 int qarr_init(qarr_t *ptr_qarr, int size) {
     if(ptr_qarr == NULL) {
@@ -56,7 +57,7 @@ int qarr_realloc(qarr_t *ptr_qarr, int size) {
     return QERR_PASS;
 }
 
-void qarr_add(qarr_t *ptr_qarr, void *data) {
+int qarr_add(qarr_t *ptr_qarr, void *data) {
     int count = ptr_qarr->count + 1;
     int size = count * sizeof(void *);
     int ret;
@@ -78,7 +79,7 @@ realloc_failed:
 
 int qarr_search(qarr_t *ptr_qarr, int key) {
     int i, **p;
-    p = ptr_qarr->data;
+    p = (int **) ptr_qarr->data;
 
     for(int i = 0; i < ptr_qarr->count; p++)
         if(key == **p)

@@ -2,9 +2,8 @@
 #include <qerr.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <qcc.h>
 
-#define ALIGNMENT_SIZE          (2)
-#define GET_ALIGNMENT(size)     (((size + ALIGNMENT_SIZE - 1) / ALIGNMENT_SIZE) * ALIGNMENT_SIZE)
 
 int qstr_init(qstr_t *ptr_qstr, int size) {
     if(ptr_qstr == NULL) {

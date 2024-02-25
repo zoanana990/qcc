@@ -1,13 +1,13 @@
-CC				:= gcc
-CFLAGS			:= 
-TARGET			:= qcc
-
 INC				:= -Iinc
-SRC				:= $(wildcard scr/*.c)
+SRC				:= $(wildcard src/*.c)
+
+CC				:= gcc
+CFLAGS			:= $(INC)
+TARGET			:= qcc
 
 all: $(TARGET)
 $(TARGET): $(SRC)
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
 clean:
 	rm -rf $(TARGET)
