@@ -9,7 +9,11 @@ all: $(TARGET)
 $(TARGET): $(SRC)
 	$(CC) $(CFLAGS) $^ -o $@
 
+check:
+	./$(TARGET) example/hello.c
+	./$(TARGET) example/add.c
+
 clean:
 	rm -rf $(TARGET)
 
-.PHONY: all clean
+.PHONY: all check clean
