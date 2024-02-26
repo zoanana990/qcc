@@ -1,6 +1,9 @@
 #ifndef __QCC_H__
 #define __QCC_H__
 
+#define MAX_KEY                  (1024)
+#define DBG                      printf
+
 enum e_token_code {
     TOKEN_PLUS,             /* plus                 :  +    */
     TOKEN_MINUS,            /* minux                :  -    */
@@ -20,14 +23,15 @@ enum e_token_code {
     TOKEN_AND,              /* logical and          :  &&   */
     TOKEN_BOR,              /* bitwise or           :  |    */
     TOKEN_OR,               /* logical or           :  ||   */
-    TOKEN_LPARENTH,         /* left parenthese      :  (    */
-    TOKEN_RPARENTH,         /* right parenthese     :  )    */
-    TOKEN_LBRACKET,         /* left bracket         :  [    */
-    TOKEN_RBRACKET,         /* right bracket        :  ]    */
-    TOKEN_BEGIN,            /* left curly bracket   :  {    */
-    TOKEN_END,              /* right curly bracket  :  }    */
+    TOKEN_OPEN_PARENTH,     /* left parenthese      :  (    */
+    TOKEN_CLOSE_PARENTH,    /* right parenthese     :  )    */
+    TOKEN_OPEN_BRACKET,     /* left bracket         :  [    */
+    TOKEN_CLOSE_BRACKET,    /* right bracket        :  ]    */
+    TOKEN_OPEN_CURLY,       /* left curly bracket   :  {    */
+    TOKEN_CLOSE_CURLY,      /* right curly bracket  :  }    */
     TOKEN_SEMICOLON,        /* semicolon            :  ;    */
     TOKEN_COMMA,            /* comma                :  ,    */
+    TOKEN_COLON,            /* colon                :  :    */
     TOKEN_ELLIPSIS,         /* ellipsis             :  ...  */
 
     TOKEN_EOF,              /* end of file      */
@@ -54,6 +58,7 @@ enum e_token_code {
     TOKEN_KEY_STDCALL,      /* __stdcall        */
 
     TOKEN_KEY_IDENT,        /* identifier       */
+    TOKEN_KEY_NUM,          /* numeric          */
 
     TOKEN_LAST
 };
@@ -82,7 +87,6 @@ typedef struct token {
     struct symbol *sym_identifier;
 } token_t;
 
-#define ALIGNMENT_SIZE          (2)
-#define GET_ALIGNMENT(size)     (((size + ALIGNMENT_SIZE - 1) / ALIGNMENT_SIZE) * ALIGNMENT_SIZE)
+#define GET_ALIGNMENT(size)     ((size_t)1 << (64 - __builtin_clzll((size_t)(size) - 1)))
 
 #endif

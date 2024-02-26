@@ -5,11 +5,6 @@
 #include <qcc.h>
 
 int qarr_init(qarr_t *ptr_qarr, int size) {
-    if(ptr_qarr == NULL) {
-        ptr_qarr = malloc(sizeof(qarr_t));
-        if(ptr_qarr == NULL)
-            goto init_nomem;
-    }
 
     ptr_qarr->data = malloc(sizeof(void *) * size);
     if(ptr_qarr->data == NULL)

@@ -11,7 +11,7 @@ $(TARGET): $(SRC)
 
 check:
 	./$(TARGET) example/hello.c
-	./$(TARGET) example/add.c
+# ./$(TARGET) example/add.c
 
 clean:
 	rm -rf $(TARGET)

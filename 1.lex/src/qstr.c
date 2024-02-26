@@ -6,11 +6,6 @@
 
 
 int qstr_init(qstr_t *ptr_qstr, int size) {
-    if(ptr_qstr == NULL) {
-        ptr_qstr = malloc(sizeof(qstr_t));
-        if(ptr_qstr == NULL)
-            goto init_nomem;
-    }
 
     ptr_qstr->data = malloc(sizeof(char) * size);
     if(ptr_qstr->data == NULL)

@@ -35,4 +35,6 @@ void handle_exception(int stage, int level, char *fmt, va_list ap);
 void warning(char *fmt, ...);
 void error(char *fmt, ...);
 
+#define pr_info(s, ...)     printf("[%s] " s, __FUNCTION__, ##__VA_ARGS__)
+
 #endif

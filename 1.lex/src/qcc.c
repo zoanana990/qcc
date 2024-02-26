@@ -1,50 +1,48 @@
 #include <qcc.h>
 #include <qarr.h>
+#include <qlex.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#define MAX_KEY                  (1024)
+/**
+ * global variable
+ */
+FILE        *fin = NULL;
+char        *filename;
+char        *outfile;
 
-token_t     token_hashtable[MAX_KEY];
-qarr_t      token_table;
+/**
+ * extern variable
+ */
+extern int   line_num;
 
-
-int elf_hash(char *key) {
-    int h=0, g;
-    while(*key) {
-        h = (h << 4) + *key++;
-        g = h & 0xf0000000;
-        if(g)
-            h ^= g >> 24;
-        h &= ~g;
-    }
-
-    return h % MAX_KEY;
-}
-
-void init_lex() {
-    token_t *tp;
-    static token_t keywords[] = {
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_MINUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-        {TOKEN_PLUS, NULL, "+", NULL, NULL},
-
-    };
+void init() {
+    line_num = 1;
+    init_lex();
 }
 
 int main(int argc, char **argv) {
-    init_lex();
+
+    /* open the file */
+    fin = fopen(argv[1], "rb");
+    if(fin == NULL) {
+        printf("file open failed\n");
+        return 1;
+    }
+
+    /* init the lexer */
+    init();
+
+    /* get the character */
+    getch();
+
+    /* syntax shader */
+    lexical_coloring();
+
+    /* free the memory we used */
+
+    /* close the file */
+    fclose(fin);
+
     return 0;
 }
