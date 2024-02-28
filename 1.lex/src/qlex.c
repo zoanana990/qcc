@@ -300,6 +300,8 @@ void word_extract() {
                 break;
             }
         }
+        else 
+            break;
     }
 }
 
@@ -322,6 +324,15 @@ void get_token() {
             token = tp->token_code;
             break;
         }
+
+        case EOF:
+            printf("EOF\n");
+            token = TOKEN_EOF;
+            break;
+        default:
+            error("cannot recognize character %c\n", fch);
+            getch();
+            break;
     }
 }
 
