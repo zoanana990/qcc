@@ -3,12 +3,13 @@
 
 #include <qcc.h>
 
+#define CH_EOF          (-1)
+
 token_t* token_direct_insert(token_t *tp);
+token_t* token_insert(char *ptr_data);
 
 void init_lex();
 
-void parse_string(char seperate);
-void parse_num(void);
 token_t *parse_identifier(void);
 
 void get_token(void);

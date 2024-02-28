@@ -31,7 +31,6 @@ void qstr_free(qstr_t *ptr_qstr) {
 
     ptr_qstr->count = 0;
     ptr_qstr->capacity = 0;
-    free(ptr_qstr);
 }
 
 void qstr_reset(qstr_t *ptr_qstr) {

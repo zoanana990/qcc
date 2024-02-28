@@ -2,7 +2,7 @@
 #define __QCC_H__
 
 #define MAX_KEY                  (1024)
-#define DBG                      printf
+#define DBG()                     printf
 
 enum e_token_code {
     TOKEN_PLUS,             /* plus                 :  +    */

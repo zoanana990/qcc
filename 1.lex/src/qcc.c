@@ -3,6 +3,7 @@
 #include <qlex.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <color.h>
 
 /**
  * global variable
@@ -33,13 +34,11 @@ int main(int argc, char **argv) {
     /* init the lexer */
     init();
 
-    /* get the character */
-    getch();
-
     /* syntax shader */
     lexical_coloring();
 
     /* free the memory we used */
+    
 
     /* close the file */
     fclose(fin);

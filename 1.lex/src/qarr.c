@@ -35,7 +35,6 @@ void qarr_free(qarr_t *ptr_qarr) {
     ptr_qarr->capacity  = 0;
     free(ptr_qarr->data);
     ptr_qarr->data      = NULL;
-    free(ptr_qarr);
 }
 
 int qarr_realloc(qarr_t *ptr_qarr, int size) {
