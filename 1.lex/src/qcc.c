@@ -27,9 +27,12 @@ int main(int argc, char **argv) {
     /* open the file */
     fin = fopen(argv[1], "rb");
     if(fin == NULL) {
-        printf("file open failed\n");
+        printf("Missing source file!\n");
+        printf("Usage: ./qcc <input.c>\n");
         return 1;
     }
+
+    printf("\n\n[NOTICE] this project do not do the semantic analyze!!!\n\n");
 
     /* init the lexer */
     init();
