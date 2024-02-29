@@ -6,12 +6,22 @@
 
 enum e_token_code {
     TOKEN_PLUS,             /* plus                 :  +    */
-    TOKEN_MINUS,            /* minux                :  -    */
+    TOKEN_PLUS_EQ,          /* plus equal           :  +=   */
+    TOKEN_MINUS,            /* minus                :  -    */
+    TOKEN_MINUS_EQ,         /* minus equal          :  -=   */
     TOKEN_STAR,             /* start                :  *    */
+    TOKEN_MULTI_EQ,         /* multiplication equal :  *=   */
     TOKEN_DIVIDE,           /* divide               :  /    */
+    TOKEN_DIVIDE_EQ,        /* divide equal         :  /=   */
     TOKEN_MOD,              /* mod                  :  %    */
+    TOKEN_MOD_EQ,           /* mod equal            :  %=   */
     TOKEN_EQ,               /* equal                :  ==   */
+    TOKEN_NOT,              /* not                  :  !    */
     TOKEN_NEQ,              /* not equal            :  !=   */
+    TOKEN_SHIFT_LEFT,       /* shift left           :  <<   */
+    TOKEN_SHIFT_LEFT_EQ,    /* shift left equal     :  <<=  */
+    TOKEN_SHIFT_RIGHT,      /* shift right          :  >>   */
+    TOKEN_SHIFT_RIGHT_EQ,   /* shift right equal    :  >>=  */
     TOKEN_LT,               /* less than            :  <    */
     TOKEN_LEQ,              /* less or equal        :  <=   */
     TOKEN_GT,               /* greater than         :  >    */
@@ -20,8 +30,10 @@ enum e_token_code {
     TOKEN_POINTTO,          /* points to            :  ->   */
     TOKEN_DOT,              /* dot                  :  .    */
     TOKEN_BAND,             /* bitwise and          :  &    */
+    TOKEN_BAND_EQ,          /* bitwise and          :  &=   */
     TOKEN_AND,              /* logical and          :  &&   */
     TOKEN_BOR,              /* bitwise or           :  |    */
+    TOKEN_BOR_EQ,           /* bitwise or           :  |=   */
     TOKEN_OR,               /* logical or           :  ||   */
     TOKEN_OPEN_PARENTH,     /* left parenthese      :  (    */
     TOKEN_CLOSE_PARENTH,    /* right parenthese     :  )    */
@@ -45,6 +57,7 @@ enum e_token_code {
     TOKEN_KEY_INT,          /* int              */
     TOKEN_KEY_VOID,         /* void             */
     TOKEN_KEY_STRUCT,       /* struct           */
+
     TOKEN_KEY_IF,           /* if               */
     TOKEN_KEY_ELSE,         /* else             */
     TOKEN_KEY_FOR,          /* for              */
@@ -52,15 +65,13 @@ enum e_token_code {
     TOKEN_KEY_BREAK,        /* break            */
     TOKEN_KEY_RETURN,       /* return           */
     TOKEN_KEY_SIZEOF,       /* sizeof           */
-
+#ifdef _WIN32
     TOKEN_KEY_ALIGN,        /* __align          */
     TOKEN_KEY_CDECL,        /* __cdecl          */
     TOKEN_KEY_STDCALL,      /* __stdcall        */
+#endif
 
     TOKEN_KEY_IDENT,        /* identifier       */
-    TOKEN_KEY_NUM,          /* numeric          */
-
-    TOKEN_LAST
 };
 
 struct symbol;
