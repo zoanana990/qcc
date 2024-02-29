@@ -20,8 +20,9 @@
 
 // #define pr_info(s, ...)     printf("[%s] " s, __FUNCTION__, ##__VA_ARGS__)
 
-#define pr_identifier(s, ...)   printf(RED s NONE)
-#define pr_keyword(s, ...)      printf(LIGHT_RED s NONE)
-#define pr_token(s, ...)        printf(LIGHT_GREEN s NONE)
+#define pr_identifier(s, ...)   printf(CYAN s NONE, ##__VA_ARGS__)
+#define pr_keyword(s, ...)      printf(PURPLE s NONE, ##__VA_ARGS__)
+#define pr_constant(s, ...)     printf(BLUE s NONE, ##__VA_ARGS__)
+#define pr_token(s, ...)        printf(YELLOW s NONE, ##__VA_ARGS__)
 
 #endif
