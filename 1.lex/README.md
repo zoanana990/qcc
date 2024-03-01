@@ -14,50 +14,30 @@ make all
 make check
 ```
 
-## Specification
+## clean
+```shell
+make clean
+```
 
-The `keyword` that `qcc` support:
+## Development record
 
-1. `int`
-2. `char`
-3. `short`
-4. `void`
-5. `struct`
-6. `if`
-7. `else`
-8. `for`
-9. `continue`
-10. `break`
-11. `return`
-12. `sizeof`
+### Parse space
+![img.png](docs/image/parse_space.png)
 
-And the `operator` that `qcc` support:
+### Parse parentheses
+![img_1.png](docs/image/parse_parentheses.png)
 
-1. `+`
-2. `-`
-3. `*`
-4. `%`
-5. `==`
-6. `!=`
-7. `<`
-8. `<=`
-9. `>`
-10. `>=`
-11. `=`
-12. `->`
-13. `.`
-14. `&`
-15. `&&`
-16. `|`
-17. `||`
-18. `(`
-19. `)`
-20. `[`
-21. `]`
-22. `{`
-23. `}`
-24. `;`
-25. `,`
-26. `:`
-27. `...`
-28. EOF
+### Parse `return`
+![img_2.png](docs/image/parse_return.png)
+
+### Parse immediate
+![img_3.png](docs/image/parse_immediate.png)
+
+### Parse semicolon and end of file
+![img_4.png](docs/image/parse_eof.png)
+
+### Parse string
+![img_5.png](docs/image/parse_string.png)
+
+### Fix the preprocessor bug
+![img_6.png](docs/image/ignore_preprocessor.png)
