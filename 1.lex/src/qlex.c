@@ -10,14 +10,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-int line_num;
+/* line count */
+int line_cnt;
+
+/* current string token code number (enum) */
 int token;
+
+/* word list, we can use trie to implement this, at the future */
 qarr_t token_table;
+
+/* global word hashtable */
 token_t *ptr_token_hashtable[MAX_KEY];
+
+/* current character get from the file */
 char fch;
 
+/* current word string */
 qstr_t token_string;
+
+/* current source code string */
 qstr_t source_string;
+
+/* current token value */
 int token_value;
 
 extern FILE *fin;
@@ -355,11 +369,11 @@ void skip_white_space() {
             getch();
             if(fch != '\n')
                 return;
-            line_num++;
+            line_cnt++;
         }
 #elif defined(__linux__) || defined(__APPLE__)
         if (fch == '\n') {
-            line_num++;
+            line_cnt++;
         }
 #endif
         printf("%c", fch);
@@ -389,7 +403,7 @@ void parse_comment() {
                 return;
             }
         } else if (fch == '\n') {
-            line_num++;
+            line_cnt++;
             getch();
         } else {
             error("Missing comment string */\n");
@@ -723,5 +737,5 @@ void lexical_coloring() {
         // break;
     } while (token != TOKEN_EOF);
 
-    printf("Lines of code: %d\n", line_num);
+    printf("Lines of code: %d\n", line_cnt);
 }

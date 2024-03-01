@@ -15,10 +15,14 @@ char *outfile;
 /**
  * extern variable
  */
-extern int line_num;
+extern int line_cnt;
+
+void deinit() {
+    /* TODO: free the mememory we used */
+}
 
 void init() {
-    line_num = 1;
+    line_cnt = 1;
     init_lex();
 }
 
@@ -41,7 +45,7 @@ int main(int argc, char **argv) {
     lexical_coloring();
 
     /* free the memory we used */
-
+    deinit();
 
     /* close the file */
     fclose(fin);
