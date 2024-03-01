@@ -1,16 +1,10 @@
-#include <qcc.h>
-#include <qarr.h>
 #include <qlex.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <color.h>
 
 /**
  * global variable
  */
 FILE *fin = NULL;
-char *filename;
-char *outfile;
 
 /**
  * extern variable
