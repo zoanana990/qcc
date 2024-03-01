@@ -72,19 +72,6 @@ int elf_hash(char *key) {
     return h % MAX_KEY;
 }
 
-/***
- * TODO: we can replace `calloc` with this
- * */
-void *mallocz(int size) {
-    void *ptr;
-    ptr = malloc(size);
-    if (!ptr)
-        error("malloc failed\n");
-
-    memset(ptr, 0, size);
-    return ptr;
-}
-
 /* hash table find */
 token_t *token_find(char *ptr_data, int key_num) {
 
@@ -113,7 +100,7 @@ token_t *token_insert(char *ptr_data) {
 
         length = strlen(ptr_data);
 
-        ptr_t = mallocz(sizeof(token_t) + length + 1);
+        ptr_t = calloc(1, sizeof(token_t) + length + 1);
 
         ptr_t->next = ptr_token_hashtable[key_num];
         ptr_token_hashtable[key_num] = ptr_t;
