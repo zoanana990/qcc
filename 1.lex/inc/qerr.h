@@ -2,6 +2,7 @@
 #define __QERR_H__
 
 #include <stdarg.h>
+
 /**
  * error code
  * */
@@ -32,7 +33,9 @@ enum {
 };
 
 void handle_exception(int stage, int level, char *fmt, va_list ap);
+
 void warning(char *fmt, ...);
+
 void error(char *fmt, ...);
 
 #define pr_info(s, ...)     printf("[%s, line %d] " s, __FUNCTION__, __LINE__, ##__VA_ARGS__)

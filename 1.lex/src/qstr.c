@@ -8,25 +8,25 @@
 int qstr_init(qstr_t *ptr_qstr, int size) {
 
     ptr_qstr->data = malloc(sizeof(char) * size);
-    if(ptr_qstr->data == NULL)
-         goto data_nomem;
+    if (ptr_qstr->data == NULL)
+        goto data_nomem;
 
     ptr_qstr->count = 0;
     ptr_qstr->capacity = size;
 
     return QERR_PASS;
 
-data_nomem:
+    data_nomem:
     free(ptr_qstr);
-init_nomem:
+    init_nomem:
     return QERR_NO_MEMORY;
 }
 
 void qstr_free(qstr_t *ptr_qstr) {
-    if(ptr_qstr == NULL)
+    if (ptr_qstr == NULL)
         return;
-    
-    if(ptr_qstr->data)
+
+    if (ptr_qstr->data)
         free(ptr_qstr->data);
 
     ptr_qstr->count = 0;
@@ -45,20 +45,20 @@ void qstr_reset(qstr_t *ptr_qstr) {
  *  - QERR_BAD_PARAM: the ptr_qstr is NULL pointer
  */
 int qstr_realloc(qstr_t *ptr_qstr, int size) {
-    int      capacity;
-    char    *data;
+    int capacity;
+    char *data;
 
-    if(ptr_qstr == NULL)
+    if (ptr_qstr == NULL)
         return QERR_BAD_PARAM;
 
     capacity = GET_ALIGNMENT(size);
 
     data = realloc(ptr_qstr->data, capacity);
-    if(data == NULL) {
+    if (data == NULL) {
         error("memory realloc failed\n");
         return QERR_NO_MEMORY;
     }
-    
+
     ptr_qstr->capacity = capacity;
     ptr_qstr->data = data;
     return QERR_PASS;
@@ -69,9 +69,9 @@ int qstr_chcat(qstr_t *ptr_qstr, int ch) {
 
     count = ptr_qstr->count + 1;
 
-    if(count > ptr_qstr->capacity) {
+    if (count > ptr_qstr->capacity) {
         ret = qstr_realloc(ptr_qstr, count);
-        if(ret)
+        if (ret)
             goto realloc_failed;
     }
 
@@ -79,7 +79,7 @@ int qstr_chcat(qstr_t *ptr_qstr, int ch) {
     ptr_qstr->count = count;
     return QERR_PASS;
 
-realloc_failed:
+    realloc_failed:
     error("realloc failed\n");
     return QERR_NO_MEMORY;
 }

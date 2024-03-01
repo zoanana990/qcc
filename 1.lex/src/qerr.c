@@ -6,8 +6,8 @@
 void handle_exception(int stage, int level, char *fmt, va_list ap) {
     char buf[1024];
     vsprintf(buf, fmt, ap);
-    if(stage == QSTG_COMPILE) {
-        if(level == QLVL_WARNING) {
+    if (stage == QSTG_COMPILE) {
+        if (level == QLVL_WARNING) {
             printf("\n\n%s (line %d) warning: %s", __FILE__, __LINE__, buf);
         } else if (level == QLVL_ERROR) {
             printf("\n\n%s (line %d) compile error: %s", __FILE__, __LINE__, buf);

@@ -1,32 +1,38 @@
 # lex
+
 This project is used to highlight c programming language syntax
 
 ## Compile
+
 ```shell
 make all
 ```
 
 ## Start
+
 ```shell
 make check
 ```
 
 ## Specification
+
 The `keyword` that `qcc` support:
-1.  `int`
-2.  `char`
-3.  `short`
-4.  `void`
-5.  `struct`
-6.  `if`
-7.  `else`
-8.  `for`
-9.  `continue`
+
+1. `int`
+2. `char`
+3. `short`
+4. `void`
+5. `struct`
+6. `if`
+7. `else`
+8. `for`
+9. `continue`
 10. `break`
 11. `return`
 12. `sizeof`
 
 And the `operator` that `qcc` support:
+
 1. `+`
 2. `-`
 3. `*`

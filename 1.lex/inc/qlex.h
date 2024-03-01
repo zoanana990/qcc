@@ -5,8 +5,9 @@
 
 #define CH_EOF          (-1)
 
-token_t* token_direct_insert(token_t *tp);
-token_t* token_insert(char *ptr_data);
+token_t *token_direct_insert(token_t *tp);
+
+token_t *token_insert(char *ptr_data);
 
 void init_lex();
 

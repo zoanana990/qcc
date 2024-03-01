@@ -8,14 +8,14 @@
 /**
  * global variable
  */
-FILE        *fin = NULL;
-char        *filename;
-char        *outfile;
+FILE *fin = NULL;
+char *filename;
+char *outfile;
 
 /**
  * extern variable
  */
-extern int   line_num;
+extern int line_num;
 
 void init() {
     line_num = 1;
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
     /* open the file */
     fin = fopen(argv[1], "rb");
-    if(fin == NULL) {
+    if (fin == NULL) {
         printf("Missing source file!\n");
         printf("Usage: ./qcc <input.c>\n");
         return 1;
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
     lexical_coloring();
 
     /* free the memory we used */
-    
+
 
     /* close the file */
     fclose(fin);
