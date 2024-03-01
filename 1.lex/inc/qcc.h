@@ -9,7 +9,7 @@ enum e_token_code {
     TOKEN_PLUS_EQ,          /* plus equal           :  +=   */
     TOKEN_MINUS,            /* minus                :  -    */
     TOKEN_MINUS_EQ,         /* minus equal          :  -=   */
-    TOKEN_STAR,             /* start                :  *    */
+    TOKEN_ASTERISK,         /* start                :  *    */
     TOKEN_MULTI_EQ,         /* multiplication equal :  *=   */
     TOKEN_DIVIDE,           /* divide               :  /    */
     TOKEN_DIVIDE_EQ,        /* divide equal         :  /=   */
@@ -45,6 +45,7 @@ enum e_token_code {
     TOKEN_COMMA,            /* comma                :  ,    */
     TOKEN_COLON,            /* colon                :  :    */
     TOKEN_ELLIPSIS,         /* ellipsis             :  ...  */
+    TOKEN_POUND,            /* pound sign           :  #    */
 
     TOKEN_EOF,              /* end of file      */
 
@@ -65,6 +66,7 @@ enum e_token_code {
     TOKEN_KEY_BREAK,        /* break            */
     TOKEN_KEY_RETURN,       /* return           */
     TOKEN_KEY_SIZEOF,       /* sizeof           */
+
 #ifdef _WIN32
     TOKEN_KEY_ALIGN,        /* __align          */
     TOKEN_KEY_CDECL,        /* __cdecl          */
@@ -72,6 +74,16 @@ enum e_token_code {
 #endif
 
     TOKEN_KEY_IDENT,        /* identifier       */
+
+    CPPD_INCLUDE,           /* #include         */
+    CPPD_DEFINE,            /* #define          */
+    CPPD_IF,                /* #if              */
+    CPPD_ELSE,              /* #else            */
+    CPPD_ELIF,              /* #elif            */
+    CPPD_DEFINED,           /* #defined         */
+    CPPD_ENDIF,             /* #endif           */
+    CPPD_IFDEF,             /* #ifdef           */
+    CPPD_IFNDEF,            /* #ifndef          */
 };
 
 struct symbol;

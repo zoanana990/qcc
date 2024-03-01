@@ -264,7 +264,7 @@ void init_lex() {
         {TOKEN_PLUS_EQ,         NULL, "+=",           NULL, NULL},
         {TOKEN_MINUS,           NULL, "-",            NULL, NULL},
         {TOKEN_MINUS_EQ,        NULL, "-=",           NULL, NULL},
-        {TOKEN_STAR,            NULL, "*",            NULL, NULL},
+        {TOKEN_ASTERISK, NULL, "*", NULL, NULL},
         {TOKEN_MULTI_EQ,        NULL, "*=",            NULL, NULL},
         {TOKEN_DIVIDE,          NULL, "/",            NULL, NULL},
         {TOKEN_DIVIDE_EQ,       NULL, "/=",           NULL, NULL},
@@ -300,6 +300,7 @@ void init_lex() {
         {TOKEN_COMMA,           NULL, ",",            NULL, NULL},
         {TOKEN_COLON,           NULL, ":",            NULL, NULL},
         {TOKEN_ELLIPSIS,        NULL, "...",          NULL, NULL},
+        {TOKEN_POUND,           NULL, " ",            NULL, NULL},
         {TOKEN_EOF,             NULL, "\n\n",         NULL, NULL},
         {TOKEN_CINT,            NULL, "int const",    NULL, NULL},
         {TOKEN_CCHAR,           NULL, "char const",   NULL, NULL},
@@ -479,7 +480,7 @@ void get_token() {
                 token = TOKEN_MULTI_EQ;
                 getch();
             } else
-                token = TOKEN_STAR;
+                token = TOKEN_ASTERISK;
             break;
         case '/':
             getch();
@@ -618,6 +619,7 @@ void get_token() {
         case '#':
             /* do nothing here */
             preprocessor();
+            token = TOKEN_POUND;
             break;
         case '\'':
             parse_string(fch);
