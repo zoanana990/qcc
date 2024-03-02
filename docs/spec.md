@@ -10,7 +10,7 @@ The format we use is [`EBNF`](https://en.wikipedia.org/wiki/Extended_Backus%E2%8
 | Usage                | Notation |
 |----------------------|----------|
 | Definition           | `::=`    |
-| Alternation          | `&#124;` |
+| Alternation          | `\|`     |
 | Termination          | `.`      |
 | Grouping             | `()`     |
 | Optional             | `[]`     |
