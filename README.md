@@ -9,4 +9,8 @@ how to implement a compiler step by step
 5. compiler
 6. linker
 
-C standard: C89
+## Reference
+1. [自己动手写编译器、链接器](https://www.tenlong.com.tw/products/9787302381365)
+2. [amacc]()
+3. [shecc]()
+
