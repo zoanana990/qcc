@@ -721,7 +721,6 @@ void lexical_coloring() {
     do {
         get_token();
         syntax_on();
-        // break;
     } while (token != TOKEN_EOF);
 
     printf("Lines of code: %d\n", line_cnt);
