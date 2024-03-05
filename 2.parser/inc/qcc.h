@@ -70,10 +70,9 @@ enum e_token_code {
     TOKEN_KEY_ALIGN,        /* __align          */
     TOKEN_KEY_CDECL,        /* __cdecl          */
     TOKEN_KEY_STDCALL,      /* __stdcall        */
-#endif
+#endif /* ifdef _WIN32 */
 
-    TOKEN_KEY_IDENT,        /* identifier       */
-
+#ifdef PREPROCESSOR
     CPPD_INCLUDE,           /* #include         */
     CPPD_DEFINE,            /* #define          */
     CPPD_IF,                /* #if              */
@@ -83,6 +82,9 @@ enum e_token_code {
     CPPD_ENDIF,             /* #endif           */
     CPPD_IFDEF,             /* #ifdef           */
     CPPD_IFNDEF,            /* #ifndef          */
+#endif /* ifdef PREPROCESSOR */
+
+    TOKEN_KEY_IDENT,        /* identifier       */
 };
 
 struct symbol;

@@ -39,6 +39,10 @@ void error(char *fmt, ...) {
     va_end(ap);
 }
 
+void expect(char *msg) {
+    error("Missing %s\n", msg);
+}
+
 void skip(int v) {
     if(token != v)
         error("missing character '%s\n", get_token_string(v));

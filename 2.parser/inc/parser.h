@@ -41,4 +41,12 @@ int type_specifier();
 void translation_unit();
 void external_declaration(int l);
 
+#ifdef _WIN32
+void function_calling_convention(int *fc);
+void struct_member_alignment();
+#else
+#define function_calling_convention(fc)
+#define struct_member_alignment()
+#endif
+
 #endif
