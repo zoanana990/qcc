@@ -36,10 +36,14 @@ enum {
 };
 
 #define ALGIN_SET           (0x100)
-
+void expression();
+void assignment_expression();
+void statement();
+void declarator();
 int type_specifier();
 void translation_unit();
 void external_declaration(int l);
+void syntax_indent();
 
 #ifdef _WIN32
 void function_calling_convention(int *fc);

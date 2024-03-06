@@ -4,6 +4,7 @@
 #include <qstr.h>
 #include <qcc.h>
 
+#include <parser.h>
 #include <color.h>
 
 #include <stdio.h>
@@ -687,6 +688,8 @@ void get_token() {
             getch();
             break;
     }
+
+    syntax_indent();
 }
 
 char *get_token_string(int str_num) {
@@ -721,7 +724,6 @@ void lexical_coloring() {
     do {
         get_token();
         syntax_on();
-        // break;
     } while (token != TOKEN_EOF);
 
     printf("Lines of code: %d\n", line_cnt);

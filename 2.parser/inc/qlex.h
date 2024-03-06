@@ -25,6 +25,6 @@ void getch();
  * description: do the code syntax shader
  */
 void lexical_coloring();
-
+void syntax_on();
 
 #endif

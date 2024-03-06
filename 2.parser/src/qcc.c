@@ -9,6 +9,7 @@
  * global variable
  */
 FILE *fin = NULL;
+char *filename;
 
 /**
  * extern variable
@@ -39,6 +40,8 @@ int main(int argc, char **argv) {
         printf("Usage: ./qcc <input.c>\n");
         return 1;
     }
+
+    filename = argv[1];
 
     printf("\n\n[NOTICE] this project do not do the semantic analyze!!!\n\n");
 
