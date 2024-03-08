@@ -94,8 +94,6 @@ token_t *token_find(char *ptr_data, int key_num) {
 
 token_t *token_insert(char *ptr_data) {
 
-    pr_info("%s\n", ptr_data);
-
     token_t *ptr_t;
     int key_num, length;
     char *s, *end;
@@ -726,7 +724,6 @@ char *get_token_string(int str_num) {
 void syntax_on() {
 
     char *ptr_c = get_token_string(token);
-    pr_info("str = %s\n", ptr_c);
 
     if (token >= TOKEN_KEY_IDENT)
         pr_identifier("%s", ptr_c);

@@ -19,7 +19,6 @@ void print_tab(int n) {
 }
 
 void syntax_indent() {
-    pr_info("token = %d\n", token);
     switch(syntax_state) {
         case SYNTAX_NULL:
             syntax_on();
@@ -442,7 +441,6 @@ void function_body() {
  * <parameter declaration> ::= <type specifier>{<declarator>}
  * */
 void parameter_type_list() {
-    pr_info("1");
     get_token();
     while(token != TOKEN_CLOSE_PARENTH) {
         if(!type_specifier())
@@ -464,7 +462,6 @@ void parameter_type_list() {
         syntax_state = SYNTAX_NEWLINE_INDENT;
     else
         syntax_state = SYNTAX_NULL;
-    pr_info("2");
     syntax_indent();
 }
 
@@ -481,7 +478,6 @@ void parameter_type_list() {
  * <TOKEN_OPEN_PARENTH><TOKEN_CLOSE_PARENTH>                    : ()
  * */
 void direct_declarator_postfix() {
-    pr_info("3");
     int n;
     if(token == TOKEN_OPEN_PARENTH)
         parameter_type_list();
@@ -557,7 +553,6 @@ void function_calling_convention(int *fc) {
  */
 void declarator() {
     int fc;
-    pr_info("toke = %d\n", token);
 
     while(token == TOKEN_ASTERISK) {
         get_token();
@@ -670,7 +665,6 @@ void struct_specifier() {
  * SELECT(<type specifier> -> <struct specifier>) = FIRST(<struct specifier>) = {<TOKEN_KEY_STRUCT>}
  * */
 int type_specifier() {
-    pr_info("toke = %d\n", token);
     int type_found = 0;
     switch(token) {
         case TOKEN_KEY_CHAR:
@@ -746,39 +740,33 @@ void external_declaration(int l) {
         error("Expect a type specifier");
     }
 
-    if(token == TOKEN_SEMICOLON) {
+    if (token == TOKEN_SEMICOLON) {
         get_token();
         return;
     }
 
-//    while(token != TOKEN_EOF) {
-        declarator();
+    declarator();
 
-        if(token == TOKEN_OPEN_CURLY) {
-            if(l == S_LOCAL) {
-                error("Do not support nested define\n");
-//                break;
-            }
-            pr_info("function go\n");
-            function_body();
-        } else {
-            if(token == TOKEN_ASSIGN) {
-                get_token();
-                initializer();
-            }
-
-            if(token == TOKEN_COMMA) {
-                get_token();
-            } else if (token == TOKEN_CLOSE_CURLY) {
-                get_token();
-//                break;
-            } else {
-                syntax_state = SYNTAX_NEWLINE_INDENT;
-                skip(TOKEN_SEMICOLON);
-//                break;
-            }
+    if (token == TOKEN_OPEN_CURLY) {
+        if (l == S_LOCAL) {
+            error("Do not support nested define\n");
         }
-//    }
+        function_body();
+    } else {
+        if (token == TOKEN_ASSIGN) {
+            get_token();
+            initializer();
+        }
+
+        if (token == TOKEN_COMMA) {
+            get_token();
+        } else if (token == TOKEN_CLOSE_CURLY) {
+            get_token();
+        } else {
+            syntax_state = SYNTAX_NEWLINE_INDENT;
+            skip(TOKEN_SEMICOLON);
+        }
+    }
 }
 
 /**
