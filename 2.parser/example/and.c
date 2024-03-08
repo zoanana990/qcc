@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int and(int a, int b) {
-    return a && b;
+    return a & b;
 }
 
 int main() {

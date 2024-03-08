@@ -21,10 +21,6 @@ char *get_token_string(int str_num);
  */
 void getch();
 
-/* function name: lexical_coloring
- * description: do the code syntax shader
- */
-void lexical_coloring();
 void syntax_on();
 
 #endif

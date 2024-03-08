@@ -103,6 +103,11 @@ typedef struct symbol {
     struct symbol *prev;
 } symbol_t;
 
+/**
+ * This is hash token, we use elf_hash to get the hash value
+ * Then we find the token. If there are several elements, we will
+ * traverse the linked list to find the node.
+ * */
 typedef struct token {
     int token_code;
     struct token *next; /* the synonym in the linked list */

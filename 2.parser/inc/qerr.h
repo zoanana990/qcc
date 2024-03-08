@@ -39,6 +39,11 @@ void error(char *fmt, ...);
 void expect(char *msg);
 void skip(int v);
 
+//#define DEBUG
+#ifdef DEBUG
 #define pr_info(s, ...)     printf("[%s, line %d] " s, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#else
+#define pr_info(s, ...)
+#endif
 
 #endif

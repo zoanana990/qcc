@@ -1,4 +1,4 @@
-#include <qlex.h>
+#include <lexer.h>
 #include <qarr.h>
 #include <qerr.h>
 #include <qstr.h>
@@ -36,6 +36,7 @@ qstr_t source_string;
 int token_value;
 
 extern FILE *fin;
+extern int syntax_state;
 
 /* check the char is number */
 int is_digit(char c) {
@@ -79,6 +80,9 @@ token_t *token_find(char *ptr_data, int key_num) {
     token_t *ptr_store = NULL, *ptr_curr;
 
     for (ptr_curr = ptr_token_hashtable[key_num]; ptr_curr; ptr_curr = ptr_curr->next) {
+        /**
+         * find the node, if the node is found, return the pointer of the token
+         * */
         if (!strcmp(ptr_data, ptr_curr->spelling)) {
             token = ptr_curr->token_code;
             ptr_store = ptr_curr;
@@ -90,11 +94,20 @@ token_t *token_find(char *ptr_data, int key_num) {
 
 token_t *token_insert(char *ptr_data) {
 
+    pr_info("%s\n", ptr_data);
+
     token_t *ptr_t;
     int key_num, length;
     char *s, *end;
 
     key_num = elf_hash(ptr_data);
+
+    /**
+     * find the node in the hashtable,
+     * if the node is exist, then return
+     * if the node is not exist, then create the node and
+     * insert to the global hashtable
+     * */
     ptr_t = token_find(ptr_data, key_num);
 
     if (ptr_t == NULL) {
@@ -303,7 +316,7 @@ void init_lex() {
             {TOKEN_COLON, NULL, ":", NULL, NULL},
             {TOKEN_ELLIPSIS, NULL, "...", NULL, NULL},
             {TOKEN_POUND, NULL, " ", NULL, NULL},
-            {TOKEN_EOF, NULL, "\n\n", NULL, NULL},
+            {TOKEN_EOF, NULL, "\n\nend of file\n", NULL, NULL},
             {TOKEN_CINT, NULL, "int const", NULL, NULL},
             {TOKEN_CCHAR, NULL, "char const", NULL, NULL},
             {TOKEN_CSTR, NULL, "string const", NULL, NULL},
@@ -333,14 +346,16 @@ void init_lex() {
     }
 }
 
-/* function name: getch
+/**
+ * function name: getch
  * description: get a character from standard library 
  */
 void getch() {
     fch = fgetc(fin);
 }
 
-/* function: skip_white_space
+/**
+ * function: skip_white_space
  * 
  * here we need to identify '\r' '\n'
  * '\r': return the mouse to the head of line 
@@ -364,7 +379,6 @@ void skip_white_space() {
             line_cnt++;
         }
 #endif
-        printf("%c", fch);
         getch();
     }
 }
@@ -403,6 +417,8 @@ void parse_comment() {
 void preprocessor() {
     while (fch != '\n' && fch != EOF)
         getch();
+    if(fch == '\n')
+        getch();
 }
 
 /* function name: word_extract
@@ -414,7 +430,9 @@ void word_extract() {
             skip_white_space();
         else if (fch == '/') {
             getch();
-            /* this is the syntax */
+            /**
+             * Here, we need to deal with two kinds of commenet
+             * */
             if (fch == '*')
                 parse_comment();
             else if (fch == '/')
@@ -670,6 +688,8 @@ void get_token() {
             /* do nothing here */
             preprocessor();
             token = TOKEN_POUND;
+            get_token();
+            syntax_state = SYNTAX_DELAY;
             break;
         case '\'':
             parse_string(fch);
@@ -706,6 +726,7 @@ char *get_token_string(int str_num) {
 void syntax_on() {
 
     char *ptr_c = get_token_string(token);
+    pr_info("str = %s\n", ptr_c);
 
     if (token >= TOKEN_KEY_IDENT)
         pr_identifier("%s", ptr_c);
@@ -715,16 +736,4 @@ void syntax_on() {
         pr_constant("%s", ptr_c);
     else
         pr_token("%s", ptr_c);
-}
-
-void lexical_coloring() {
-    /* get the character */
-    getch();
-
-    do {
-        get_token();
-        syntax_on();
-    } while (token != TOKEN_EOF);
-
-    printf("Lines of code: %d\n", line_cnt);
 }

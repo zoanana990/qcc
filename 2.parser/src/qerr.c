@@ -1,5 +1,5 @@
 #include <qerr.h>
-#include <qlex.h>
+#include <lexer.h>
 
 #include <stdio.h>
 #include <stdarg.h>

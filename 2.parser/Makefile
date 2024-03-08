@@ -14,7 +14,7 @@ check:
 	./$(TARGET) example/basic.c
 	./$(TARGET) example/add.c
 	./$(TARGET) example/hello.c
-	./$(TARGET) example/and.c
+	./$(TARGET) example/nest.c
 
 dump:
 	$(OBJDUMP) -dV $(TARGET) > elf_log

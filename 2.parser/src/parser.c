@@ -1,6 +1,6 @@
 #include <parser.h>
 #include <qcc.h>
-#include <qlex.h>
+#include <lexer.h>
 #include <qerr.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -10,6 +10,7 @@ int indent_level;
 
 extern int token;
 extern int token_value;
+extern char fch;
 
 void print_tab(int n) {
     int i = 0;
@@ -18,6 +19,7 @@ void print_tab(int n) {
 }
 
 void syntax_indent() {
+    pr_info("token = %d\n", token);
     switch(syntax_state) {
         case SYNTAX_NULL:
             syntax_on();
@@ -440,6 +442,7 @@ void function_body() {
  * <parameter declaration> ::= <type specifier>{<declarator>}
  * */
 void parameter_type_list() {
+    pr_info("1");
     get_token();
     while(token != TOKEN_CLOSE_PARENTH) {
         if(!type_specifier())
@@ -461,6 +464,7 @@ void parameter_type_list() {
         syntax_state = SYNTAX_NEWLINE_INDENT;
     else
         syntax_state = SYNTAX_NULL;
+    pr_info("2");
     syntax_indent();
 }
 
@@ -477,6 +481,7 @@ void parameter_type_list() {
  * <TOKEN_OPEN_PARENTH><TOKEN_CLOSE_PARENTH>                    : ()
  * */
 void direct_declarator_postfix() {
+    pr_info("3");
     int n;
     if(token == TOKEN_OPEN_PARENTH)
         parameter_type_list();
@@ -499,8 +504,8 @@ void direct_declarator() {
     if(token >= TOKEN_KEY_IDENT)
         get_token();
     else
-        expect("Identifier\n");
-
+        error("expect identifier, current token = %d, fch = %x\n", token, fch);
+//        return;
     direct_declarator_postfix();
 }
 
@@ -552,6 +557,8 @@ void function_calling_convention(int *fc) {
  */
 void declarator() {
     int fc;
+    pr_info("toke = %d\n", token);
+
     while(token == TOKEN_ASTERISK) {
         get_token();
     }
@@ -663,6 +670,7 @@ void struct_specifier() {
  * SELECT(<type specifier> -> <struct specifier>) = FIRST(<struct specifier>) = {<TOKEN_KEY_STRUCT>}
  * */
 int type_specifier() {
+    pr_info("toke = %d\n", token);
     int type_found = 0;
     switch(token) {
         case TOKEN_KEY_CHAR:
@@ -727,8 +735,15 @@ int type_specifier() {
  * }
  * */
 void external_declaration(int l) {
+
+    /**
+     * There are three possible in the head of line,
+     * 1. declaration, that is, type specifier
+     * 2. statement, arithmetic, identifier, key word such as typedef, for, if, etc.
+     * 3. preprocessor, in this parser, we do not need to consider this kind of situation
+     * */
     if(!type_specifier()) {
-        error("expect <type specifier>\n");
+        error("Expect a type specifier");
     }
 
     if(token == TOKEN_SEMICOLON) {
@@ -736,37 +751,40 @@ void external_declaration(int l) {
         return;
     }
 
-    while(1) {
+//    while(token != TOKEN_EOF) {
         declarator();
 
         if(token == TOKEN_OPEN_CURLY) {
             if(l == S_LOCAL) {
                 error("Do not support nested define\n");
-                function_body();
-                break;
-            } else {
-                if(token == TOKEN_ASSIGN) {
-                    get_token();
-                    initializer();
-                }
+//                break;
+            }
+            pr_info("function go\n");
+            function_body();
+        } else {
+            if(token == TOKEN_ASSIGN) {
+                get_token();
+                initializer();
+            }
 
-                if(token == TOKEN_COMMA) {
-                    get_token();
-                } else {
-                    syntax_state = SYNTAX_NEWLINE_INDENT;
-                    skip(TOKEN_SEMICOLON);
-                    break;
-                }
+            if(token == TOKEN_COMMA) {
+                get_token();
+            } else if (token == TOKEN_CLOSE_CURLY) {
+                get_token();
+//                break;
+            } else {
+                syntax_state = SYNTAX_NEWLINE_INDENT;
+                skip(TOKEN_SEMICOLON);
+//                break;
             }
         }
-    }
+//    }
 }
 
 /**
  * <translation unit> ::= {<external declaration>}<TOKEN_EOF>
  * */
 void translation_unit() {
-    printf("translation_unit start\n");
     while(token != TOKEN_EOF) {
         external_declaration(S_GLOBAL);
     }

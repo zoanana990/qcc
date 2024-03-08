@@ -1,4 +1,4 @@
-#include <qlex.h>
+#include <lexer.h>
 #include <qarr.h>
 #include <parser.h>
 
@@ -20,10 +20,10 @@ extern token_t *ptr_token_hashtable[MAX_KEY];
 
 void deinit() {
     /* TODO: free the memory we used */
-    for(int i = 0; i < token_table.count; i++)
-        free(token_table.data[i]);
-
-    free(token_table.data);
+//    for(int i = 0; i < token_table.count; i++)
+//        free(token_table.data[i]);
+//
+//    free(token_table.data);
 }
 
 void init() {
