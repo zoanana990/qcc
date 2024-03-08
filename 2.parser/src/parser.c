@@ -168,7 +168,8 @@ void unary_expression() {
  * */
 void multiplicative_expression() {
     unary_expression();
-    while((token == TOKEN_ASTERISK) || (token == TOKEN_DIVIDE) || (token == TOKEN_MOD)) {
+    while((token == TOKEN_ASTERISK) || (token == TOKEN_DIVIDE) || (token == TOKEN_MOD) ||
+          (token == TOKEN_BAND) || (token == TOKEN_BOR)) {
         get_token();
         unary_expression();
     }
@@ -745,6 +746,12 @@ void external_declaration(int l) {
         return;
     }
 
+    /**
+     * if the declaration is structure,
+     * it will be parsed as struct identifier
+     * then it the open curly and close curly will not be
+     * processed later, it will declare it in this function.
+     * */
     declarator();
 
     if (token == TOKEN_OPEN_CURLY) {
