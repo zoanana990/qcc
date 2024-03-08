@@ -162,6 +162,7 @@ void unary_expression() {
     }
 }
 
+/* These operator should depend on priority */
 /**
  * <additive expression> ::= <multiplicative expression>{<TOKEN_PLUS><multiplicative expression> |
  *                                                       <TOKEN_MINUS><multiplicative expression> |
