@@ -13,8 +13,10 @@ $(TARGET): $(SRC)
 check:
 	./$(TARGET) example/basic.c
 	./$(TARGET) example/add.c
+	./$(TARGET) example/and.c
 	./$(TARGET) example/hello.c
 	./$(TARGET) example/nest.c
+	./$(TARGET) example/pair.c
 
 dump:
 	$(OBJDUMP) -dV $(TARGET) > elf_log
