@@ -3,7 +3,7 @@ This is a tutorial usage simplified c compiler, and there are several projects t
 how to implement a compiler step by step
 
 1. [lex](./1.lex/): in this project, we will implement a c program syntax shader.
-2. syntax indent
+2. [parser](./2.parser): in this project, we will implement a c indent parser.
 3. semantics
 4. ir
 5. compiler
