@@ -1,5 +1,11 @@
 INC				:= -Iinc
-SRC				:= src/qcc.c src/qarr.c src/qerr.c src/qstr.c src/lexer.c src/parser.c
+SRC				:= src/qcc.c
+SRC				+= src/qarr.c
+SRC				+= src/qerr.c
+SRC				+= src/qstr.c
+SRC				+= src/qstack.c
+SRC				+= src/lexer.c
+SRC				+= src/parser.c
 
 CC				:= gcc
 OBJDUMP			:= otool
