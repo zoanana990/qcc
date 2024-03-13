@@ -1,7 +1,9 @@
-#ifndef __QCC_H__
-#define __QCC_H__
+#ifndef __TOKEN_H__
+#define __TOKEN_H__
 
-#define MAX_KEY                  (1024)
+#include <symbol.h>
+#include <utils.h>
+#include <token.h>
 
 enum e_token_code {
     TOKEN_PLUS,             /* plus                 :  +    */
@@ -87,22 +89,6 @@ enum e_token_code {
     TOKEN_KEY_IDENT,        /* identifier       */
 };
 
-struct symbol;
-
-typedef struct type {
-    int t;
-    struct symbol *ref;
-} type_t;
-
-typedef struct symbol {
-    int v;          /* token code */
-    int r;          /* register */
-    int c;          /* relative */
-    struct type type;
-    struct symbol *next;
-    struct symbol *prev;
-} symbol_t;
-
 /**
  * This is hash token, we use elf_hash to get the hash value
  * Then we find the token. If there are several elements, we will
@@ -115,7 +101,5 @@ typedef struct token {
     struct symbol *sym_struct;
     struct symbol *sym_identifier;
 } token_t;
-
-#define GET_ALIGNMENT(size)     ((size_t)1 << (64 - __builtin_clzll((size_t)(size) - 1)))
 
 #endif

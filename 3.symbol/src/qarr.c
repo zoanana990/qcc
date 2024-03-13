@@ -1,10 +1,10 @@
 #include <qerr.h>
-#include <qarr.h>
+#include <vector.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <qcc.h>
+#include <token.h>
 
-int qarr_init(qarr_t *ptr_qarr, int size) {
+int vector_init(qvector_t *ptr_qarr, int size) {
 
     ptr_qarr->data = malloc(sizeof(void *) * size);
     if (ptr_qarr->data == NULL)
@@ -21,7 +21,7 @@ int qarr_init(qarr_t *ptr_qarr, int size) {
     return QERR_NO_MEMORY;
 }
 
-void qarr_free(qarr_t *ptr_qarr) {
+void vector_free(qvector_t *ptr_qarr) {
     void **p;
     if (ptr_qarr == NULL)
         return;
@@ -37,7 +37,7 @@ void qarr_free(qarr_t *ptr_qarr) {
     ptr_qarr->data = NULL;
 }
 
-int qarr_realloc(qarr_t *ptr_qarr, int size) {
+int vector_realloc(qvector_t *ptr_qarr, int size) {
     int capacity = GET_ALIGNMENT(size);
     void *data = realloc(ptr_qarr->data, capacity);
 
@@ -51,13 +51,13 @@ int qarr_realloc(qarr_t *ptr_qarr, int size) {
     return QERR_PASS;
 }
 
-int qarr_add(qarr_t *ptr_qarr, void *data) {
+int vector_add(qvector_t *ptr_qarr, void *data) {
     int count = ptr_qarr->count + 1;
     int size = count * sizeof(void *);
     int ret;
 
     if (size > ptr_qarr->capacity) {
-        ret = qarr_realloc(ptr_qarr, size);
+        ret = vector_realloc(ptr_qarr, size);
         if (ret)
             goto realloc_failed;
     }
@@ -71,7 +71,7 @@ int qarr_add(qarr_t *ptr_qarr, void *data) {
     return QERR_NO_MEMORY;
 }
 
-int qarr_search(qarr_t *ptr_qarr, int key) {
+int vector_search(qvector_t *ptr_qarr, int key) {
     int i, **p;
     p = (int **) ptr_qarr->data;
 

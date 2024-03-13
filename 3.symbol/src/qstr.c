@@ -2,7 +2,7 @@
 #include <qerr.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <qcc.h>
+#include <token.h>
 
 
 int qstr_init(qstr_t *ptr_qstr, int size) {

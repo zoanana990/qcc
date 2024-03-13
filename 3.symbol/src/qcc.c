@@ -1,5 +1,5 @@
 #include <lexer.h>
-#include <qarr.h>
+#include <vector.h>
 #include <parser.h>
 
 #include <stdio.h>
@@ -15,7 +15,7 @@ char *filename;
  * extern variable
  */
 extern int line_cnt;
-extern qarr_t token_table;
+extern qvector_t token_table;
 extern token_t *ptr_token_hashtable[MAX_KEY];
 
 void deinit() {

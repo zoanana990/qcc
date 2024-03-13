@@ -4,6 +4,7 @@ SRC				+= src/qarr.c
 SRC				+= src/qerr.c
 SRC				+= src/qstr.c
 SRC				+= src/qstack.c
+SRC				+= src/symbol.c
 SRC				+= src/lexer.c
 SRC				+= src/parser.c
 

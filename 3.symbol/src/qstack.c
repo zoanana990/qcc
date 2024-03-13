@@ -33,6 +33,11 @@ void *stack_push(qstack_t *ptr_stack, void *element, int size) {
     return *(ptr_stack->top++);
 }
 
+void stack_pop(qstack_t *stack) {
+    if(stack->top > stack->base)
+        free(*(--stack->top));
+}
+
 void *stack_top(qstack_t *ptr_stack) {
     return (ptr_stack->top > ptr_stack->base) ? (ptr_stack->top - 1) : NULL;
 }

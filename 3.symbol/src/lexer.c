@@ -1,8 +1,8 @@
 #include <lexer.h>
-#include <qarr.h>
+#include <vector.h>
 #include <qerr.h>
 #include <qstr.h>
-#include <qcc.h>
+#include <token.h>
 
 #include <parser.h>
 #include <color.h>
@@ -18,7 +18,7 @@ int line_cnt;
 int token;
 
 /* word list, we can use trie to implement this, at the future */
-qarr_t token_table;
+qvector_t token_table;
 
 /* global word hashtable */
 token_t *ptr_token_hashtable[MAX_KEY];
@@ -117,7 +117,7 @@ token_t *token_insert(char *ptr_data) {
         ptr_t->next = ptr_token_hashtable[key_num];
         ptr_token_hashtable[key_num] = ptr_t;
 
-        qarr_add(&token_table, ptr_t);
+        vector_add(&token_table, ptr_t);
         ptr_t->token_code = token_table.count - 1;
 
         s = (char *) ptr_t + sizeof(token_t);
@@ -260,7 +260,7 @@ token_t *token_direct_insert(token_t *tp) {
     tp->sym_identifier = NULL;
     tp->sym_struct = NULL;
 
-    qarr_add(&token_table, tp);
+    vector_add(&token_table, tp);
 
     key_num = elf_hash(tp->spelling);
 
@@ -337,7 +337,7 @@ void init_lex() {
 #endif
             {0, NULL, NULL, NULL, NULL},
     };
-    qarr_init(&token_table, 8);
+    vector_init(&token_table, 8);
 
     for (tp = keywords; tp->spelling != NULL; tp++) {
         token_direct_insert(tp);

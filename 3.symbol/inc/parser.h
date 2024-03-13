@@ -1,5 +1,5 @@
-#ifndef __SYNTAX_H__
-#define __SYNTAX_H__
+#ifndef __PARSER_H__
+#define __PARSER_H__
 
 /*
  * syntax status
@@ -10,18 +10,6 @@ enum{
     SYNTAX_NEWLINE_INDENT,      /* a new line and indent */
     SYNTAX_DELAY,
 };
-
-#define S_GLOBAL            (0xf0U)
-#define S_LOCAL             (0xf1U)
-#define S_OVERFLOW          (0xf2U)
-#define S_GMP               (0xf3U)
-#define S_VAL_MASK          (0xffU)
-#define S_LVALUE            (0x100U)
-#define S_SYMBOL            (0x200U)
-#define S_ANONYMOUS         (0x100000000U)
-#define S_STRUCT            (0x200000000U)
-#define S_MEMBER            (0x400000000U)
-#define S_PARAMS            (0x800000000U)
 
 enum {
     T_INT,                  /* integer      */

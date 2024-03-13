@@ -1,7 +1,7 @@
 #ifndef __QLEX_H__
 #define __QLEX_H__
 
-#include <qcc.h>
+#include <token.h>
 
 #define CH_EOF          (-1)
 

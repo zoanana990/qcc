@@ -1,5 +1,5 @@
 #include <parser.h>
-#include <qcc.h>
+#include <token.h>
 #include <lexer.h>
 #include <qerr.h>
 #include <stdbool.h>
