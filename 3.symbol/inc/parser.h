@@ -1,6 +1,8 @@
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
+#include <symbol.h>
+
 /*
  * syntax status
  * */
@@ -11,24 +13,12 @@ enum{
     SYNTAX_DELAY,
 };
 
-enum {
-    T_INT,                  /* integer      */
-    T_CHAR,                 /* character    */
-    T_SHORT,                /* short        */
-    T_VOID,                 /* void         */
-    T_PTR,                  /* pointer      */
-    T_FUNC,                 /* function     */
-    T_STRUCT,               /* structure    */
-    T_BYTE = 0xf,           /* byte         */
-    T_ARRAY,                /* array        */
-};
-
 #define ALGIN_SET           (0x100)
 void expression();
 void assignment_expression();
-void statement();
-void declarator();
-int type_specifier();
+void statement(int *ptr_break_symbol, int *ptr_continue_symbol);
+void declarator(type_t *ptr_type, int *ptr_v, int *ptr_force_align);
+int type_specifier(type_t *ptr_type);
 void translation_unit();
 void external_declaration(int l);
 void syntax_indent();

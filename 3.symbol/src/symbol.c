@@ -12,6 +12,7 @@
  * Thus, we need to change the
  * */
 qstack_t global_symbol_stack, local_symbol_stack;
+type_t type_int;
 
 extern qvector_t token_table;
 extern int token;
@@ -58,12 +59,12 @@ symbol_t *symbol_push(int v, type_t *ptr_type, int r, int c) {
     ptr_s->r = r;
 
     /* We do not store the anonymous symbol and structure member */
-    if((v & S_STRUCT) || v < S_ANONYMOUS) {
+    if((v & SYMBOL_STRUCT) || v < SYMBOL_ANONYMOUS) {
         /* we need to update the word */
-        ptr_ts = token_table.data[(v & ~S_STRUCT)];
+        ptr_ts = token_table.data[(v & ~SYMBOL_STRUCT)];
 
         /* update the token table */
-        if(v & S_STRUCT)
+        if(v & SYMBOL_STRUCT)
             pptr_s = &ptr_ts->sym_struct;
         else
             pptr_s = &ptr_ts->sym_identifier;
@@ -93,15 +94,15 @@ symbol_t *symbol_function_push(int v, type_t *ptr_type) {
 symbol_t *symbol_variable_push(type_t *type, int r, int v, int addr) {
     symbol_t *sym = NULL;
 
-    if((r & S_VAL_MASK) == S_LOCAL)
+    if((r & SYMBOL_VAL_MASK) == SYMBOL_LOCAL)
         sym = symbol_push(v, type, r, addr);
-    else if((r & S_VAL_MASK) == S_GLOBAL) {
+    else if((r & SYMBOL_VAL_MASK) == SYMBOL_GLOBAL) {
         sym = symbol_search(v);
 
         if(sym)
             error("redefine variable, %s\n", ((token_t *)token_table.data[v])->spelling);
 
-        sym = symbol_push(v, type, r | S_SYMBOL, 0);
+        sym = symbol_push(v, type, r | SYMBOL_SYM, 0);
     }
 
     return sym;
@@ -114,7 +115,7 @@ symbol_t *symbol_put_section(char *section, int c) {
     t.t = TYPE_INT;
     tp = token_insert(section);
     token = tp->token_code;
-    s = symbol_push(token, &t, S_GLOBAL, c);
+    s = symbol_push(token, &t, SYMBOL_GLOBAL, c);
     return s;
 }
 
@@ -136,12 +137,12 @@ void symbol_pop(qstack_t *ptr_top, symbol_t *b) {
         v = ptr_s->v;
 
         /* update the word list */
-        if((v & S_STRUCT) || v < S_ANONYMOUS) {
+        if((v & SYMBOL_STRUCT) || v < SYMBOL_ANONYMOUS) {
             /* we need to update the word */
-            ptr_ts = token_table.data[(v & ~S_STRUCT)];
+            ptr_ts = token_table.data[(v & ~SYMBOL_STRUCT)];
 
             /* update the token table */
-            if(v & S_STRUCT)
+            if(v & SYMBOL_STRUCT)
                 pptr_s = &ptr_ts->sym_struct;
             else
                 pptr_s = &ptr_ts->sym_identifier;
@@ -154,3 +155,51 @@ void symbol_pop(qstack_t *ptr_top, symbol_t *b) {
     }
 }
 
+void symbol_make_pointer(type_t *ptr_t) {
+    symbol_t *ptr_s;
+    ptr_s = symbol_push(SYMBOL_ANONYMOUS, ptr_t, 0, -1);
+
+    /* the token is star(*) */
+    ptr_t->t = TOKEN_ASTERISK;
+    ptr_t->ref = ptr_s;
+}
+
+void symbol_dump() {
+
+}
+
+int type_size(type_t *ptr_type, int *ptr_align) {
+    symbol_t *ptr_symbol;
+    int btype;
+
+    int ptr_size = 4;
+
+    btype = ptr_type->t & TYPE_BTYPE;
+    switch(btype) {
+        case TYPE_STRUCT:
+            ptr_symbol = ptr_type->ref;
+            *ptr_align = ptr_symbol->r;
+            return ptr_symbol->c;
+        case TYPE_PTR:
+            if(ptr_type->t & TYPE_ARRAY) {
+                ptr_symbol = ptr_type->ref;
+                return type_size(&ptr_symbol->type, ptr_align) * ptr_symbol->c;
+            } else {
+                *ptr_align = ptr_size;
+                return ptr_size;
+            }
+        case TYPE_INT:
+            *ptr_align = SIZE_INT;
+            return SIZE_INT;
+        case TYPE_SHORT:
+            *ptr_align = SIZE_SHORT;
+            return SIZE_SHORT;
+        case TYPE_VOID:
+            *ptr_align = SIZE_VOID;
+            return SIZE_VOID;
+        case TYPE_CHAR:
+        default:
+            *ptr_align = SIZE_CHAR;
+            return SIZE_CHAR;
+    }
+}

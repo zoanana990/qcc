@@ -2,6 +2,8 @@
 #include <token.h>
 #include <lexer.h>
 #include <qerr.h>
+#include <symbol.h>
+#include <qstack.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -11,6 +13,8 @@ int indent_level;
 extern int token;
 extern int token_value;
 extern char fch;
+extern qstack_t global_symbol_stack, local_symbol_stack;
+extern type_t type_int;
 
 void print_tab(int n) {
     int i = 0;
@@ -47,10 +51,17 @@ void syntax_indent() {
  * <sizeof expression> ::= <TOKEN_KEY_SIZEOF><TOKEN_OPEN_PARENTH><type specifier><TOKEN_CLOSE_PARENTH>
  * */
 void sizeof_expression() {
+    int align, size;
+    type_t type;
+
     get_token();
     skip(TOKEN_OPEN_PARENTH);
-    type_specifier();
+    type_specifier(&type);
     skip(TOKEN_CLOSE_PARENTH);
+
+    size = type_size(&type, &align);
+    if(size < 0)
+        error("sizeof(variable type) calculation failed\n");
 }
 
 /**
@@ -122,7 +133,7 @@ void postfix_expression() {
     while(1) {
         if(token == TOKEN_DOT || token == TOKEN_POINTTO) {
             get_token();
-            token |= S_MEMBER;
+            token |= SYMBOL_MEMBER;
             get_token();
         } else if(token == TOKEN_OPEN_BRACKET) {
             get_token();
@@ -262,19 +273,23 @@ bool is_type_specifier(int t) {
  * <compound statement> ::= <TOKEN_OPEN_CURLY>{<declaration>}{<statement>}<TOKEN_CLOSE_CURLY>
  * first, the indent_level need to plus 1
  * */
-void compound_statement() {
+void compound_statement(int *ptr_break_symbol, int *ptr_continue_symbol) {
+    symbol_t *ptr_symbol;
     syntax_state = SYNTAX_NEWLINE_INDENT;
     indent_level++;
 
+    ptr_symbol = stack_top(&local_symbol_stack);
+
     get_token();
     while(is_type_specifier(token)) {
-        external_declaration(S_LOCAL);
+        external_declaration(SYMBOL_LOCAL);
     }
 
     while(token != TOKEN_CLOSE_CURLY) {
-        statement();
+        statement(ptr_break_symbol, ptr_continue_symbol);
     }
 
+    symbol_pop(&local_symbol_stack, ptr_symbol);
     syntax_state = SYNTAX_NEWLINE_INDENT;
     get_token();
 }
@@ -307,7 +322,7 @@ void return_statement() {
 /**
  * <break statement> ::= <TOKEN_KEY_BREAK><TOKEN_SEMICOLON>
  * */
-void break_statement() {
+void break_statement(int *ptr_break_symbol) {
     get_token();
     syntax_state = SYNTAX_NEWLINE_INDENT;
     skip(TOKEN_SEMICOLON);
@@ -316,7 +331,7 @@ void break_statement() {
 /**
  * <continue statement> ::= <TOKEN_KEY_CONTINUE><TOKEN_SEMICOLON>
  * */
-void continue_statement() {
+void continue_statement(int *ptr_continue_symbol) {
     get_token();
     syntax_state = SYNTAX_NEWLINE_INDENT;
     skip(TOKEN_SEMICOLON);
@@ -327,7 +342,7 @@ void continue_statement() {
  *                     <expression_statement><expression><TOKEN_CLOSE_PARENTH>
  *                     <statement>
  * */
-void for_statement() {
+void for_statement(int *ptr_break_symbol, int *ptr_continue_symbol) {
     get_token();
     skip(TOKEN_OPEN_PARENTH);
     if(token != TOKEN_SEMICOLON) {
@@ -345,7 +360,7 @@ void for_statement() {
     }
     syntax_state = SYNTAX_NEWLINE_INDENT;
     skip(TOKEN_CLOSE_PARENTH);
-    statement();
+    statement(ptr_break_symbol, ptr_continue_symbol);
 }
 
 /**
@@ -354,18 +369,18 @@ void for_statement() {
  *
  * here, we can deal with "if", "else if" and "else" three kinds of statement
  * */
-void if_statement() {
+void if_statement(int *ptr_break_symbol, int *ptr_continue_symbol) {
     syntax_state = SYNTAX_SPACE;
     get_token();
     skip(TOKEN_OPEN_PARENTH);
     expression();
     syntax_state = SYNTAX_NEWLINE_INDENT;
     skip(TOKEN_CLOSE_PARENTH);
-    statement();
+    statement(ptr_break_symbol, ptr_continue_symbol);
     if(token == TOKEN_KEY_ELSE) {
         syntax_state = SYNTAX_NEWLINE_INDENT;
         get_token();
-        statement();
+        statement(ptr_break_symbol, ptr_continue_symbol);
     }
 }
 
@@ -394,25 +409,25 @@ void expression_statement() {
  *                  <for statement> |
  *                  <expression statement>
  * */
-void statement() {
+void statement(int *ptr_break_symbol, int *ptr_continue_symbol) {
     switch(token) {
         case TOKEN_OPEN_CURLY:
-            compound_statement();
+            compound_statement(ptr_break_symbol, ptr_continue_symbol);
             break;
         case TOKEN_KEY_IF:
-            if_statement();
+            if_statement(ptr_break_symbol, ptr_continue_symbol);
             break;
         case TOKEN_KEY_RETURN:
             return_statement();
             break;
         case TOKEN_KEY_BREAK:
-            break_statement();
+            break_statement(ptr_break_symbol);
             break;
         case TOKEN_KEY_CONTINUE:
-            continue_statement();
+            continue_statement(ptr_continue_symbol);
             break;
         case TOKEN_KEY_FOR:
-            for_statement();
+            for_statement(ptr_break_symbol, ptr_continue_symbol);
             break;
         default:
             expression_statement();
@@ -423,15 +438,22 @@ void statement() {
 /**
  * <initializer> ::= <assignment expression>
  * */
-void initializer() {
-    assignment_expression();
+void initializer(type_t *ptr_type) {
+    if(ptr_type->t & TYPE_ARRAY)
+        get_token();
+    else
+        assignment_expression();
 }
 
 /**
  * <function body> ::= <compound statement>
  * */
-void function_body() {
-    compound_statement();
+void function_body(symbol_t *ptr_symbol) {
+    /* put an anonymous symbol in local symbol table */
+    symbol_direct_push(&local_symbol_stack, SYMBOL_ANONYMOUS, &type_int, 0);
+    compound_statement(NULL, NULL);
+
+    symbol_pop(&local_symbol_stack, NULL);
 }
 
 /**
@@ -442,12 +464,22 @@ void function_body() {
  *
  * <parameter declaration> ::= <type specifier>{<declarator>}
  * */
-void parameter_type_list() {
+void parameter_type_list(type_t *ptr_type, int func_call) {
+    int n;
+    symbol_t **pptr_last, *ptr_symbol, *ptr_first;
+    type_t t;
+
     get_token();
+    ptr_first = NULL, pptr_last = &ptr_first;
+
+
     while(token != TOKEN_CLOSE_PARENTH) {
-        if(!type_specifier())
+        if(!type_specifier(&t))
             error("Invalid identifier\n");
-        declarator();
+        declarator(&t, &n, NULL);
+        ptr_symbol = symbol_push(n | SYMBOL_PARAMS, &t, 0, 0);
+        *pptr_last = ptr_symbol;
+        pptr_last = &ptr_symbol->next;
 
         if(token == TOKEN_CLOSE_PARENTH)
             break;
@@ -465,6 +497,12 @@ void parameter_type_list() {
     else
         syntax_state = SYNTAX_NULL;
     syntax_indent();
+
+    /* function return */
+    ptr_symbol = symbol_push(SYMBOL_ANONYMOUS, ptr_type, func_call, 0);
+    ptr_symbol->next = ptr_first;
+    ptr_type->t = TYPE_FUNC;
+    ptr_type->ref = ptr_symbol;
 }
 
 /**
@@ -479,32 +517,40 @@ void parameter_type_list() {
  * <TOKEN_OPEN_PARENTH><parameter list><TOKEN_CLOSE_PARENTH>    : (int a, char b)
  * <TOKEN_OPEN_PARENTH><TOKEN_CLOSE_PARENTH>                    : ()
  * */
-void direct_declarator_postfix() {
+void direct_declarator_postfix(type_t *ptr_type, int func_call) {
     int n;
+    symbol_t *ptr_s;
+
     if(token == TOKEN_OPEN_PARENTH)
-        parameter_type_list();
+        parameter_type_list(ptr_type, func_call);
     else if(token == TOKEN_OPEN_BRACKET) {
         get_token();
+        n = -1;
         if(token == TOKEN_CINT) {
             get_token();
             n = token_value;
         }
 
         skip(TOKEN_CLOSE_BRACKET);
-        direct_declarator_postfix();
+        direct_declarator_postfix(ptr_type, func_call);
+        ptr_s = symbol_push(SYMBOL_ANONYMOUS, ptr_type, 0, n);
+        ptr_type->t = TYPE_ARRAY | TYPE_PTR;
+        ptr_type->ref = ptr_s;
     }
 }
 
 /**
  * <direct declarator> ::= <TOKEN_KEY_IDENT><direct declarator postfix>
  * */
-void direct_declarator() {
-    if(token >= TOKEN_KEY_IDENT)
+void direct_declarator(type_t *ptr_type, int *ptr_v, int func_call) {
+    if(token >= TOKEN_KEY_IDENT) {
+        *ptr_v = token;
         get_token();
+    }
     else
         error("expect identifier, current token = %d, fch = %x\n", token, fch);
-//        return;
-    direct_declarator_postfix();
+
+    direct_declarator_postfix(ptr_type, func_call);
 }
 
 #ifdef _WIN32
@@ -547,33 +593,66 @@ void function_calling_convention(int *fc) {
 /**
  * in this function, we need to consider the pointer declaration, array declaration etc.
  *
+ * parameters:
+ * ptr_type: data type
+ * ptr_v: the word token
+ * ptr_force_align: alignment
+ *
  * in windows platform
  * <declarator> ::= {<TOKEN_ASTERISK>}[<function calling convention>][<struct member alignment>]<direct declarator>
  *
  * in linux or other unix like platform
  * <declarator> ::= {<TOKEN_ASTERISK>}<direct declarator>
  */
-void declarator() {
+void declarator(type_t *ptr_type, int *ptr_v, int *ptr_force_align) {
     int fc;
 
     while(token == TOKEN_ASTERISK) {
+        symbol_make_pointer(ptr_type);
         get_token();
     }
 
-    function_calling_convention(&fc);
+    if(ptr_force_align)
+#ifndef _W32
+        *ptr_force_align = 1;
+#else
     struct_member_alignment();
-    direct_declarator();
+#endif
+    function_calling_convention(&fc);
+    direct_declarator(ptr_type, ptr_v, fc);
 }
 
 /**
+ * function: struct_declaration
+ * parameter:
+ *
+ *
  * <struct_declaration> ::= <type specifier><struct_declaration_list><TOKEN_SEMICOLON>
  * <struct_declaration> ::= <type specifier><declarator>{<TOKEN_COMMA><declarator>}<TOKEN_SEMICOLON>
  */
-void struct_declaration() {
-    
-    type_specifier();
+void struct_declaration(int *ptr_max_align, int *ptr_offset, symbol_t ***ppptr_symbol) {
+
+    int v, size, align, force_align;
+    symbol_t *ptr_s;
+    type_t type_to_get, type_to_push;
+
+    /* in structure declaration, there are several types in the struct
+     * example:
+     * struct example {
+     *  int a;
+     *  int b;
+     *  char c;
+     * };
+     *
+     * then, we need to get all parameter type.
+     * Thus, there is a type_specifier
+     * */
+    type_specifier(&type_to_get);
     while(1) {
-        declarator();
+        v = 0;
+        type_to_push = type_to_get;
+        declarator(&type_to_push, &v, &force_align);
+
         if(token == TOKEN_SEMICOLON)
             break;
         
@@ -587,8 +666,11 @@ void struct_declaration() {
 /**
  * <struct_declaration_list> ::= <struct_declaration>{<struct_declaration>}
  */
-void struct_declaration_list() {
+void struct_declaration_list(type_t *ptr_type) {
     int max_align, offset;
+    symbol_t *ptr_s, **pptr_s;
+
+    ptr_s = ptr_type->ref;
     
     /* the first member is in a newline 
      * that is
@@ -603,9 +685,16 @@ void struct_declaration_list() {
 
     get_token();
 
+    if(ptr_s->c != -1)
+        error("structure is defined ");
+
+    max_align = 1;
+    pptr_s = &ptr_s->next;
+    offset = 0;
+
     /* while the token is not '}', then it is still in structure definition */
     while(token != TOKEN_CLOSE_CURLY)
-        struct_declaration();
+        struct_declaration(&max_align, &offset, &pptr_s);
     
     skip(TOKEN_CLOSE_CURLY);
 
@@ -615,26 +704,36 @@ void struct_declaration_list() {
 /**
  * function name: struct_specifier
  *
+ * parse the delimiter
+ *
  * <struct_specifier> ::= <TOKEN_KEY_STRUCT><TOKEN_KEY_IDENT><TOKEN_OPEN_CURLY><struct_declaration_list><TOKEN_CLOSE_CURLY> |
  *                        <TOKEN_KEY_STRUCT><TOKEN_KEY_IDENT>
  *
- * <struct_declaration_list> ::= <struct_declaration>{<struct_declaration>}
- *
- * <struct_declaration> ::= <type specifier><struct_declaration_list><TOKEN_SEMICOLON>
- * <struct_declaration> ::= <type specifier><declarator>{<TOKEN_COMMA><declarator>}<TOKEN_SEMICOLON>
  * */
-void struct_specifier() {
+void struct_specifier(type_t *ptr_type) {
     int v;
+    symbol_t *ptr_symbol;
+    type_t symbol_type;
+
+    /* Here, the token is specifier, the v is used to restore the specifier token */
     get_token();
     v = token;
 
     syntax_state = SYNTAX_DELAY;
 
+    /* Here, the token should be open curly or close parentheses
+     * There is two cases:
+     * struct case1 {
+     *      int aaa;
+     * };
+     *
+     * case 2: sizeof(struct case2);
+     * */
     get_token();
 
     if(token == TOKEN_OPEN_CURLY)
         syntax_state = SYNTAX_NEWLINE_INDENT;
-    else if(token == TOKEN_CLOSE_CURLY)
+    else if(token == TOKEN_CLOSE_PARENTH)
         syntax_state = SYNTAX_NULL;
     else
         syntax_state = SYNTAX_SPACE;
@@ -643,14 +742,29 @@ void struct_specifier() {
 
     if(v < TOKEN_KEY_IDENT)
         error("Expect structure name\n");
+
+    /* search the symbol in structure */
+    ptr_symbol = symbol_search_struct(v);
+
+    /* if the symbol is not found, then insert a symbol */
+    if(!ptr_symbol) {
+        symbol_type.t = TOKEN_KEY_STRUCT;
+
+        /* assign ptr_symbol->c to -1 */
+        ptr_symbol = symbol_push(v | SYMBOL_STRUCT, &symbol_type, 0, -1);
+        ptr_symbol->r = 0;
+    }
+
+    ptr_type->t = TYPE_STRUCT;
+    ptr_type->ref = ptr_symbol;
     
     if(token == TOKEN_OPEN_CURLY)
-        struct_declaration_list();
+        struct_declaration_list(ptr_type);
 }
 
 /**
  * function name: type_specifier
- * description: parse delimiter
+ * description: parse delimiter, get the token type.
  *
  * <type specifier> ::= <TOKEN_KEY_CHAR> |
  *                      <TOKEN_KEY_SHORT> |
@@ -666,13 +780,22 @@ void struct_specifier() {
  * SELECT(<type specifier> -> <TOKEN_KEY_VOID>) = FIRST(<TOKEN_KEY_VOID>) = {<TOKEN_KEY_VOID>}
  * SELECT(<type specifier> -> <struct specifier>) = FIRST(<struct specifier>) = {<TOKEN_KEY_STRUCT>}
  * */
-int type_specifier() {
-    int type_found = 0;
+int type_specifier(type_t *ptr_type) {
+    int t, type_found = 0;
+    type_t type_in_struct;
     switch(token) {
         case TOKEN_KEY_CHAR:
+            t = TYPE_CHAR;
+            goto common;
         case TOKEN_KEY_SHORT:
+            t = TYPE_SHORT;
+            goto common;
         case TOKEN_KEY_INT:
+            t = TYPE_INT;
+            goto common;
         case TOKEN_KEY_VOID:
+            t = TYPE_VOID;
+common:
             type_found = 1;
             syntax_state = SYNTAX_SPACE;
             get_token();
@@ -680,11 +803,15 @@ int type_specifier() {
         case TOKEN_KEY_STRUCT:
             type_found = 1;
             syntax_state = SYNTAX_SPACE;
-            struct_specifier();
+            struct_specifier(&type_in_struct);
+            ptr_type->ref = type_in_struct.ref;
+            t = TYPE_STRUCT;
             break;
         default:
             break;
     }
+
+    ptr_type->t = t;
 
     return type_found;
 }
@@ -732,17 +859,21 @@ int type_specifier() {
  * */
 void external_declaration(int l) {
 
+    type_t btype, type;
+    int v, has_init, r, addr;
+    symbol_t *ptr_symbol;
+
     /**
      * There are three possible in the head of line,
      * 1. declaration, that is, type specifier
      * 2. statement, arithmetic, identifier, key word such as typedef, for, if, etc.
      * 3. preprocessor, in this parser, we do not need to consider this kind of situation
      * */
-    if(!type_specifier()) {
+    if(!type_specifier(&btype)) {
         error("Expect a type specifier");
     }
 
-    if (token == TOKEN_SEMICOLON) {
+    if (btype.t == TYPE_STRUCT && token == TOKEN_SEMICOLON) {
         get_token();
         return;
     }
@@ -753,22 +884,47 @@ void external_declaration(int l) {
      * then it the open curly and close curly will not be
      * processed later, it will declare it in this function.
      * */
-    declarator();
+    type = btype;
+    declarator(&type, &v, NULL);
 
     if (token == TOKEN_OPEN_CURLY) {
-        if (l == S_LOCAL) {
+        if (l == SYMBOL_LOCAL)
             error("Do not support nested define\n");
+
+        if((type.t & TYPE_BTYPE) != TYPE_FUNC)
+            error("Expect <Function Definition>\n");
+
+        ptr_symbol = symbol_search(v);
+        if(ptr_symbol) {
+            if((type.t & TYPE_BTYPE) != TYPE_FUNC)
+                error("function %s is redefinition\n", get_token_string(v));
+
+            ptr_symbol->type = type;
+        } else {
+            ptr_symbol = symbol_function_push(v, &type);
         }
-        function_body();
+
+        ptr_symbol->r = SYMBOL_SYM | SYMBOL_GLOBAL;
+        function_body(ptr_symbol);
     } else {
-        if (token == TOKEN_ASSIGN) {
-            get_token();
-            initializer();
+        /* function declaration */
+        if((type.t & TYPE_BTYPE) == TYPE_FUNC) {
+            if (symbol_search(v) == NULL)
+                ptr_symbol = symbol_push(v, &type, SYMBOL_GLOBAL | SYMBOL_SYM, 0);
+        } else {
+            r = 0;
+            if(!(type.t & TYPE_ARRAY))
+                r |= SYMBOL_LVALUE;
+
+            r |= l;
+            if(token == TOKEN_ASSIGN) {
+                get_token();
+                initializer(&type);
+            }
+            ptr_symbol = symbol_variable_push(&type, r, v, addr);
         }
 
         if (token == TOKEN_COMMA) {
-            get_token();
-        } else if (token == TOKEN_CLOSE_CURLY) {
             get_token();
         } else {
             syntax_state = SYNTAX_NEWLINE_INDENT;
@@ -782,6 +938,6 @@ void external_declaration(int l) {
  * */
 void translation_unit() {
     while(token != TOKEN_EOF) {
-        external_declaration(S_GLOBAL);
+        external_declaration(SYMBOL_GLOBAL);
     }
 }
