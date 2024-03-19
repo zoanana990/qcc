@@ -13,9 +13,20 @@
  * */
 qstack_t global_symbol_stack, local_symbol_stack;
 type_t type_int;
+symbol_t symbol_section_rdata;
+
 
 extern qvector_t token_table;
 extern int token;
+
+void symbol_dump(symbol_t *ptr_symbol) {
+    pr_info("--> CUT HERE, SYMBOL DUMP \n");
+    pr_info("ptr_symbol->v = %d, token = %d\n", ptr_symbol->v, token);
+    pr_info("ptr_symbol->c = %d\n", ptr_symbol->c);
+    pr_info("ptr_symbol->type.t = %d\n", ptr_symbol->type.t);
+    pr_info("-----------------------------------\n");
+}
+
 /**
  * Description: push the symbol to symbol stack
  *
@@ -32,6 +43,8 @@ symbol_t *symbol_direct_push(qstack_t *ptr_qs, int v, type_t *ptr_type, int c) {
     s.type.ref = ptr_type->ref;
     s.c = c;
     s.next = NULL;
+    pr_info("stack push\n");
+//    symbol_dump(&s);
     return stack_push(ptr_qs, &s, sizeof(symbol_t));
 }
 
@@ -45,19 +58,30 @@ symbol_t *symbol_direct_push(qstack_t *ptr_qs, int v, type_t *ptr_type, int c) {
  * r: restore type
  * c: symbol relation
  * */
+
+/**
+ * BUG HERE
+ * */
 symbol_t *symbol_push(int v, type_t *ptr_type, int r, int c) {
     symbol_t *ptr_s, **pptr_s;
     token_t *ptr_ts;
     qstack_t *ptr_ss;
 
-    if(stack_isEmpty(&local_symbol_stack))
+    pr_info("check stack is empty\n");
+    if(!stack_isEmpty(&local_symbol_stack)) {
+        pr_info("local symbol\n");
         ptr_ss = &local_symbol_stack;
-    else
+    }
+    else {
+        pr_info("global symbol\n");
         ptr_ss = &global_symbol_stack;
+    }
 
+    pr_info("push symbol directly\n");
     ptr_s = symbol_direct_push(ptr_ss, v, ptr_type, c);
     ptr_s->r = r;
 
+    pr_info("check token type\n");
     /* We do not store the anonymous symbol and structure member */
     if((v & SYMBOL_STRUCT) || v < SYMBOL_ANONYMOUS) {
         /* we need to update the word */
@@ -72,6 +96,7 @@ symbol_t *symbol_push(int v, type_t *ptr_type, int r, int c) {
         ptr_s->prev = *pptr_s;
         *pptr_s = ptr_s;
     }
+    pr_info("return\n");
 
     return ptr_s;
 }
@@ -132,16 +157,23 @@ void symbol_pop(qstack_t *ptr_top, symbol_t *b) {
     token_t *ptr_ts;
     int v;
 
+    pr_info("stack top\n");
     ptr_s = stack_top(ptr_top);
+    symbol_dump(ptr_s);
+
     while(ptr_s != b) {
         v = ptr_s->v;
 
+        pr_info("update list\n");
         /* update the word list */
-        if((v & SYMBOL_STRUCT) || v < SYMBOL_ANONYMOUS) {
+        if((v & SYMBOL_STRUCT) || (v < SYMBOL_ANONYMOUS)) {
+            pr_info("v = 0x%x\n", v);
+
             /* we need to update the word */
-            ptr_ts = token_table.data[(v & ~SYMBOL_STRUCT)];
+            ptr_ts = (token_t *)token_table.data[(v & ~SYMBOL_STRUCT)];
 
             /* update the token table */
+            pr_info("update table\n");
             if(v & SYMBOL_STRUCT)
                 pptr_s = &ptr_ts->sym_struct;
             else
@@ -150,7 +182,9 @@ void symbol_pop(qstack_t *ptr_top, symbol_t *b) {
             *pptr_s = ptr_s->prev;
         }
 
+        pr_info("stack pop\n");
         stack_pop(ptr_top);
+        pr_info("stack top\n");
         ptr_s = stack_top(ptr_top);
     }
 }
@@ -162,10 +196,6 @@ void symbol_make_pointer(type_t *ptr_t) {
     /* the token is star(*) */
     ptr_t->t = TOKEN_ASTERISK;
     ptr_t->ref = ptr_s;
-}
-
-void symbol_dump() {
-
 }
 
 int type_size(type_t *ptr_type, int *ptr_align) {

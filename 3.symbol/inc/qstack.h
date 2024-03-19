@@ -12,6 +12,7 @@ void *stack_push(qstack_t *ptr_stack, void *element, int size);
 void stack_pop(qstack_t *stack);
 void *stack_top(qstack_t *ptr_stack);
 int stack_isEmpty(qstack_t *ptr_stack);
+void stack_dump(qstack_t *ptr_stack);
 void stack_free(qstack_t *ptr_stack);
 
 #endif //__QSTACK_H__

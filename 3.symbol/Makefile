@@ -1,5 +1,5 @@
 INC				:= -Iinc
-SRC				:= src/qcc.c
+SRC				:= src/main.c
 SRC				+= src/qarr.c
 SRC				+= src/qerr.c
 SRC				+= src/qstr.c

@@ -711,7 +711,6 @@ void get_token() {
 }
 
 char *get_token_string(int str_num) {
-
     if (str_num > token_table.count)
         return NULL;
     else if (str_num >= TOKEN_CINT && str_num <= TOKEN_CSTR)
@@ -733,4 +732,6 @@ void syntax_on() {
         pr_constant("%s", ptr_c);
     else
         pr_token("%s", ptr_c);
+
+    pr_info("eof???\n");
 }

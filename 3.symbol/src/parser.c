@@ -278,6 +278,7 @@ void compound_statement(int *ptr_break_symbol, int *ptr_continue_symbol) {
     syntax_state = SYNTAX_NEWLINE_INDENT;
     indent_level++;
 
+    pr_info("stack top\n");
     ptr_symbol = stack_top(&local_symbol_stack);
 
     get_token();
@@ -290,6 +291,7 @@ void compound_statement(int *ptr_break_symbol, int *ptr_continue_symbol) {
     }
 
     symbol_pop(&local_symbol_stack, ptr_symbol);
+    pr_info("stack pop\n");
     syntax_state = SYNTAX_NEWLINE_INDENT;
     get_token();
 }
@@ -453,7 +455,9 @@ void function_body(symbol_t *ptr_symbol) {
     symbol_direct_push(&local_symbol_stack, SYMBOL_ANONYMOUS, &type_int, 0);
     compound_statement(NULL, NULL);
 
+    pr_info("symbol pop ??\n");
     symbol_pop(&local_symbol_stack, NULL);
+    pr_info("symbol pop\n");
 }
 
 /**
@@ -499,10 +503,12 @@ void parameter_type_list(type_t *ptr_type, int func_call) {
     syntax_indent();
 
     /* function return */
+    pr_info("push symbol\n");
     ptr_symbol = symbol_push(SYMBOL_ANONYMOUS, ptr_type, func_call, 0);
     ptr_symbol->next = ptr_first;
     ptr_type->t = TYPE_FUNC;
     ptr_type->ref = ptr_symbol;
+    pr_info("push symbol complete\n");
 }
 
 /**
@@ -544,12 +550,14 @@ void direct_declarator_postfix(type_t *ptr_type, int func_call) {
  * */
 void direct_declarator(type_t *ptr_type, int *ptr_v, int func_call) {
     if(token >= TOKEN_KEY_IDENT) {
+        pr_info("Is identifier\n");
         *ptr_v = token;
         get_token();
     }
     else
         error("expect identifier, current token = %d, fch = %x\n", token, fch);
 
+    pr_info("declarator postfix\n");
     direct_declarator_postfix(ptr_type, func_call);
 }
 
@@ -570,7 +578,6 @@ void struct_member_alignment() {
         skip(TOKEN_OPEN_PARENTH);
     }
 }
-
 
 /* This function is used to call windows kernel API,
  * e.g. int __stdcall WinMain(...)
@@ -860,7 +867,7 @@ common:
 void external_declaration(int l) {
 
     type_t btype, type;
-    int v, has_init, r, addr;
+    int v, r, addr;
     symbol_t *ptr_symbol;
 
     /**
@@ -869,6 +876,7 @@ void external_declaration(int l) {
      * 2. statement, arithmetic, identifier, key word such as typedef, for, if, etc.
      * 3. preprocessor, in this parser, we do not need to consider this kind of situation
      * */
+    pr_info("type specifier\n");
     if(!type_specifier(&btype)) {
         error("Expect a type specifier");
     }
@@ -884,6 +892,7 @@ void external_declaration(int l) {
      * then it the open curly and close curly will not be
      * processed later, it will declare it in this function.
      * */
+    pr_info("declarator\n");
     type = btype;
     declarator(&type, &v, NULL);
 
@@ -894,6 +903,7 @@ void external_declaration(int l) {
         if((type.t & TYPE_BTYPE) != TYPE_FUNC)
             error("Expect <Function Definition>\n");
 
+        pr_info("symbol search\n");
         ptr_symbol = symbol_search(v);
         if(ptr_symbol) {
             if((type.t & TYPE_BTYPE) != TYPE_FUNC)
@@ -904,14 +914,17 @@ void external_declaration(int l) {
             ptr_symbol = symbol_function_push(v, &type);
         }
 
+        pr_info("function body\n");
         ptr_symbol->r = SYMBOL_SYM | SYMBOL_GLOBAL;
         function_body(ptr_symbol);
     } else {
         /* function declaration */
         if((type.t & TYPE_BTYPE) == TYPE_FUNC) {
+            pr_info("function declaration\n");
             if (symbol_search(v) == NULL)
                 ptr_symbol = symbol_push(v, &type, SYMBOL_GLOBAL | SYMBOL_SYM, 0);
         } else {
+            pr_info("variable declaration\n");
             r = 0;
             if(!(type.t & TYPE_ARRAY))
                 r |= SYMBOL_LVALUE;
