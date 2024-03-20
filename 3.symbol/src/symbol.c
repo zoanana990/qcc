@@ -12,7 +12,7 @@
  * Thus, we need to change the
  * */
 qstack_t global_symbol_stack, local_symbol_stack;
-type_t type_int;
+type_t type_int, default_func_type;
 symbol_t symbol_section_rdata;
 
 
@@ -21,6 +21,10 @@ extern int token;
 
 void symbol_dump(symbol_t *ptr_symbol) {
     pr_info("--> CUT HERE, SYMBOL DUMP \n");
+    if(ptr_symbol->v < token_table.count)
+        pr_info("symbol name: %s\n", ((token_t *)token_table.data[ptr_symbol->v])->spelling);
+    else
+        pr_info("Cannot get symbol name, v = %d, count = %u\n", ptr_symbol->v, token_table.count);
     pr_info("ptr_symbol->v = %d, token = %d\n", ptr_symbol->v, token);
     pr_info("ptr_symbol->c = %d\n", ptr_symbol->c);
     pr_info("ptr_symbol->type.t = %d\n", ptr_symbol->type.t);
@@ -45,6 +49,7 @@ symbol_t *symbol_direct_push(qstack_t *ptr_qs, int v, type_t *ptr_type, int c) {
     s.next = NULL;
     pr_info("stack push\n");
 //    symbol_dump(&s);
+//    pr_info("%s\n", ((token_t *)token_table.data[v])->spelling);
     return stack_push(ptr_qs, &s, sizeof(symbol_t));
 }
 
@@ -106,6 +111,7 @@ symbol_t *symbol_function_push(int v, type_t *ptr_type) {
 
     ptr_s = symbol_direct_push(&global_symbol_stack, v, ptr_type, 0);
     pptr_s = &((token_t *) token_table.data[v])->sym_identifier;
+    pr_info("%s\n", ((token_t *)token_table.data[v])->spelling);
 
     while(*pptr_s)
         pptr_s = &(*pptr_s)->prev;

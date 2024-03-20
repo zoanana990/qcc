@@ -44,6 +44,7 @@ typedef struct symbol {
     int v;                  /* token code */
     int r;                  /* register */
     int c;                  /* relative */
+    char *name;             /* symbol name */
     struct type type;       /* the data type */
     struct symbol *next;    /* next other symbol */
     struct symbol *prev;    /* previous same name symbol */

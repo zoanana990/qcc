@@ -1,15 +1,22 @@
 #include <qstack.h>
 #include <qerr.h>
+#include <symbol.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 void stack_dump(qstack_t *ptr_stack) {
+    unsigned int times = ((uintptr_t)ptr_stack->top - (uintptr_t)ptr_stack->base) / sizeof(symbol_t);
+
     pr_info("--> CUT HERE, STACK DUMP \n");
     pr_info("ptr_stack->top = %p\n", ptr_stack->top);
     pr_info("ptr_stack->base = %p\n", ptr_stack->base);
     pr_info("ptr_stack->size = %d\n", ptr_stack->size);
+
+    for(int i = 0; i < times; i++)
+        pr_info("base[%d] = %p", i, ptr_stack->base + i);
+
     pr_info("-----------------------------------\n");
 }
 

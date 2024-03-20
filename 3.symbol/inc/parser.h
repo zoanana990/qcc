@@ -13,7 +13,7 @@ enum{
     SYNTAX_DELAY,
 };
 
-#define ALGIN_SET           (0x100)
+#define ALIGN_SET           (0x100)
 void expression();
 void assignment_expression();
 void statement(int *ptr_break_symbol, int *ptr_continue_symbol);
@@ -22,6 +22,7 @@ int type_specifier(type_t *ptr_type);
 void translation_unit();
 void external_declaration(int l);
 void syntax_indent();
+void initializer(type_t *ptr_type);
 
 #ifdef _WIN32
 void function_calling_convention(int *fc);

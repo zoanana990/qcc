@@ -58,6 +58,10 @@ int is_alnum(char c) {
             (c >= '0' && c <= '9') || c == '_');
 }
 
+void token_dump(int v) {
+
+}
+
 /**
  * emlf hash function
  */
@@ -732,6 +736,4 @@ void syntax_on() {
         pr_constant("%s", ptr_c);
     else
         pr_token("%s", ptr_c);
-
-    pr_info("eof???\n");
 }

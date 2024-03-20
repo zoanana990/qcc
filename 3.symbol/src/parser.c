@@ -6,6 +6,7 @@
 #include <qstack.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <utils.h>
 
 int syntax_state;
 int indent_level;
@@ -14,7 +15,7 @@ extern int token;
 extern int token_value;
 extern char fch;
 extern qstack_t global_symbol_stack, local_symbol_stack;
-extern type_t type_int;
+extern type_t type_int, default_func_type;
 
 void print_tab(int n) {
     int i = 0;
@@ -73,13 +74,22 @@ void sizeof_expression() {
  * */
 void primary_expression() {
 
-    int t;
+    int t, addr;
+    type_t type;
+    symbol_t *ptr_symbol;
 
     switch(token) {
         case TOKEN_CINT:
         case TOKEN_CCHAR:
-        case TOKEN_CSTR:
             get_token();
+            break;
+        case TOKEN_CSTR:
+            t = TYPE_CHAR;
+            type.t = t;
+            symbol_make_pointer(&type);
+            type.t |= TYPE_ARRAY;
+            symbol_variable_push(&type, SYMBOL_GLOBAL, 0, addr);
+            initializer(&type);
             break;
         case TOKEN_OPEN_PARENTH:
             get_token();
@@ -91,6 +101,13 @@ void primary_expression() {
             get_token();
             if(t < TOKEN_KEY_IDENT)
                 expect("identifier or constant\n");
+            ptr_symbol = symbol_search(t);
+            if(ptr_symbol == NULL) {
+                if(token != TOKEN_OPEN_PARENTH)
+                    error("'%s' not declaration\n", get_token_string(t));
+                ptr_symbol = symbol_function_push(t, &default_func_type);
+                ptr_symbol->r = SYMBOL_GLOBAL | SYMBOL_SYM;
+            }
             break;
     }
 }
@@ -659,6 +676,23 @@ void struct_declaration(int *ptr_max_align, int *ptr_offset, symbol_t ***ppptr_s
         v = 0;
         type_to_push = type_to_get;
         declarator(&type_to_push, &v, &force_align);
+        size = type_size(&type_to_push, &align);
+
+        if(force_align & ALIGN_SET)
+            align = force_align & ~ALIGN_SET;
+
+        *ptr_offset = calc_align(*ptr_offset, align);
+
+        if(align > *ptr_max_align)
+            *ptr_max_align = align;
+
+        ptr_s = symbol_push(v | SYMBOL_MEMBER, &type_to_push, 0, *ptr_offset);
+
+        *ptr_offset += size;
+
+        **ppptr_symbol = ptr_s;
+
+        *ppptr_symbol = &ptr_s->next;
 
         if(token == TOKEN_SEMICOLON)
             break;
