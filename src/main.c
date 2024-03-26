@@ -1,6 +1,7 @@
 #include <errno.h>
 
 #include <lexer.h>
+#include <parser.h>
 
 /* All C files will include this, where extern_ is replaced with extern.
  * But main.c will remove the extern_, thus, these variables will belongs to main.c
@@ -10,6 +11,7 @@
 #undef extern_
 
 #include <token.h>
+#include <ast.h>
 
 static void init() {
     line = 1;
@@ -21,26 +23,10 @@ static void usage(char *prog) {
     exit(1);
 }
 
-char *token_string[] = {
-    "+",
-    "-",
-    "*",
-    "/",
-    "integer_literal"
-};
-
-static void scan_file() {
-    struct token t;
-
-    while(scan(&t)) {
-        printf("token %s", token_string[t.token]);
-        if(t.token == T_INT_LITERAL)
-            printf(", value %d", t.integer_value);
-        printf("\n");
-    }
-}
-
 int main(int argc, char *argv[]) {
+
+    struct ast_node *n;
+
     if(argc != 2)
         usage(argv[0]);
 
@@ -51,7 +37,10 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    scan_file();
+    scan(&token);
+    n = binary_expression();
+
+    printf("%d\n", ast_interpreter(n));
 
     fclose(input_file);
 

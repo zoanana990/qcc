@@ -8,7 +8,7 @@ SOURCES	:= $(wildcard $(SRC)/*.c)
 TARGET	:= qcc
 
 CC		:= gcc
-CFLAGS	:= $(INCLUDE) -g
+CFLAGS	:= $(INCLUDE) -g -Wall -Werror
 
 
 all: $(TARGET) force

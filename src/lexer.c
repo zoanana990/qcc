@@ -20,6 +20,10 @@ static int character_position(char *s, int c) {
 static int next(void) {
     int c;
 
+    /*
+     * need to check the put_back is empty, then fget
+     * or return put_back directly
+     */
     if(put_back) {
         c = put_back;
         put_back = 0;
@@ -27,12 +31,16 @@ static int next(void) {
     }
 
     c = fgetc(input_file);
+    // printf("c = %c\n", c == EOF ? 'A' : c);
     if(c == '\n')
         line++;
 
     return c;
 }
 
+/**
+ * skip the space character  
+ */
 static int skip(void) {
     int c;
 
@@ -56,7 +64,11 @@ static int scan_int(int c) {
         c = next();
     }
 
-    /* When hit a non-integer value, put it back */
+    /* When hit a non-integer value, put it back 
+     * here, the case is '+', '-', '*', '/'
+     * and this should be assign to a global variable
+     * so that the `next` function
+     */
     putback(c);
 
     return v;
@@ -69,6 +81,7 @@ int scan(struct token *t) {
 
     switch(c) {
         case EOF:
+            t->token = T_EOF;
             return 0;
         case '+':
             t->token = T_PLUS;

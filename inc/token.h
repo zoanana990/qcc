@@ -6,6 +6,7 @@
 #include <ctype.h>
 
 enum {
+    T_EOF,
     T_PLUS,
     T_MINUS,
     T_STAR,
@@ -16,4 +17,4 @@ enum {
 struct token {
     int token;
     int integer_value;
-} token_t;
+};

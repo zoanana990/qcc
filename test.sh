@@ -2,7 +2,7 @@
 
 declare -a tests=(
     "example/1 0"  
-    "example/2 0" 
+    "example/2 1" 
     "example/3 1"
     "example/4 1"
     "example/5 1" 
