@@ -48,6 +48,7 @@ int main(int argc, char *argv[]) {
 
     if((input_file = fopen(argv[1], "r")) == NULL) {
         fprintf(stderr, "Unable to open %s: %s\n", argv[1], strerror(errno));
+        exit(1);
     }
 
     scan_file();
