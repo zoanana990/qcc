@@ -5,8 +5,13 @@ declare -a tests=(
     "example/2 1" 
     "example/3 1"
     "example/4 1"
-    "example/5 1" 
+    "example/5 1"
+    "example/6 0" 
 )
+
+total_tests=${#tests[@]}
+pass_count=0
+fail_count=0
 
 # 遍歷測試
 for test_case in "${tests[@]}"; do
@@ -23,11 +28,26 @@ for test_case in "${tests[@]}"; do
     # 檢查命令的退出狀態
     if [ $? -eq $expected_result ]; then
         echo "========================================"
+        ((pass_count++))
     else
-        echo "Unexpected behavior"
-        exit 1
+        echo "Unexpected behavior, Test failed"
+        ((fail_count++))
     fi
     
 done
 
-echo "Test Complete"
+# 計算通過率
+pass_rate=$(echo "scale=2; $pass_count * 100 / $total_tests" | bc)
+
+echo "#######################################"
+echo "Total Tests: $total_tests"
+echo "Passed: $pass_count"
+echo "Failed: $fail_count"
+echo "Pass Rate: $pass_rate%"
+
+if [ $fail_count -gt 0 ]; then
+    exit 1
+else
+    echo "All tests passed!"
+    exit 0
+fi

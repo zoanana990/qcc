@@ -31,13 +31,12 @@ struct ast_node *primary() {
      * and scan in the next token.
      * Otherwise, a syntax error for any other token type
      */
-    // printf("%d\n", token.token);
     switch(token.token) {
         case T_INT_LITERAL:
             n = ast_makeLeaf(A_INTEGER_LITERAL, token.integer_value);
-            // printf("%d\n", token.integer_value);
-            scan(&token);
             
+            /* this scan token may meet T_EOF */
+            scan(&token);     
             return n;
         default:
             fprintf(stderr, "syntax error on line %d\n", line);
@@ -59,7 +58,9 @@ struct ast_node *binary_expression(void) {
      */
     left = primary();
 
-    /* if no token left, return the left node */
+    /* `primary` may meet T_EOF.
+     * if no token left, return the left node
+     */
     if(token.token == T_EOF)
         return left;
 
