@@ -28,6 +28,7 @@ struct ast_node *ast_makeUnary(int opcode, int integer_value, struct ast_node *l
     return ast_makeNode(opcode, integer_value, left, NULL);
 }
 
+static char *ast_opcode[] = { "+", "-", "*", "/" };
 int ast_interpreter(struct ast_node *n) {
     int lv, rv;
     if(n->left)
@@ -38,7 +39,7 @@ int ast_interpreter(struct ast_node *n) {
     if(n->opcode == A_INTEGER_LITERAL)
         printf("int %d\n", n->integer_value);
     else
-        printf("operator %d, %d, %d\n", lv, n->opcode, rv);
+        printf("operator %d, %s, %d\n", lv, ast_opcode[n->opcode], rv);
 
     switch(n->opcode) {
         case A_ADD:

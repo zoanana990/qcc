@@ -45,32 +45,85 @@ struct ast_node *primary() {
 }
 
 /**
- * Current parser:
- * expression := T_INTEGER_LITERAL |
- *               expression arithmetic_operator expression
+ * <multiplicative expression> := <T_INTEGER_LITERAL> | 
+ *                                <T_INTEGER_LITERAL><T_STAR><multiplicative expression> |
+ *                                <T_INTEGER_LITERAL><T_SLASH><multiplicative expression>
+ * 
+ * return the ast tree those root is a '*' or '/' binary operator
  */
-struct ast_node *binary_expression(void) {
+struct ast_node *multiplicative_expression(void) {
     struct ast_node *left, *right;
-    int node_type;
+    int token_type;
 
-    /* get the integer literal on the left
+    /**
+     * get the integer literal on the left
      * fetch the next token at the same time
      */
     left = primary();
 
-    /* `primary` may meet T_EOF.
-     * if no token left, return the left node
-     */
-    if(token.token == T_EOF)
+    token_type = token.token;
+    if(token_type == T_EOF)
         return left;
+    
+    while(token_type == T_STAR || token_type == T_SLASH) {
+        /* fetch the next integer literal*/
+        scan(&token);
+        right = primary();
 
-    /* convert the token into a node type */
-    node_type = arithmetic_operator(token.token);
+        /* make a tree node */
+        left = ast_makeNode(arithmetic_operator(token_type), 0, left, right);
 
-    /* get the next token in */
-    scan(&token);
+        token_type = token.token;
+        if(token_type == T_EOF)
+            break;
+    }
 
-    right = binary_expression();
+    return left;
+}
 
-    return ast_makeNode(node_type, 0, left, right);
+
+/**
+ * <additive expression> := <multiplicative expression> |
+ *                          <additive expression><T_PLUS><additive expression> |
+ *                          <additive expression><T_MINUS><additive expression>  
+ * 
+ * return the ast tree those root is a '+' or '-' binary operator
+ */
+struct ast_node *additive_expression(void) {
+    struct ast_node *left, *right;
+    int token_type;
+
+    /**
+     * get the integer literal on the left
+     * fetch the next token at the same time
+     */
+    left = primary();
+
+    /* check the token_type is notend of file */
+    token_type = token.token;
+    if(token_type == T_EOF)
+        return left;
+    
+    /* loop at our level precedence */
+    while(token_type != T_EOF) {
+        /* fetch the next integer literal*/
+        scan(&token);
+
+        /* get the right subtree at a higher precedence than us */
+        right = multiplicative_expression();
+
+        /* make a tree node */
+        left = ast_makeNode(arithmetic_operator(token_type), 0, left, right);
+
+        token_type = token.token;
+    }
+
+    return left;
+}
+
+/**
+ * <expression>:=<additive expression>
+ */
+struct ast_node *binary_expression(void) {
+    return additive_expression();
 }

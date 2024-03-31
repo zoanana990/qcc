@@ -13,19 +13,15 @@ total_tests=${#tests[@]}
 pass_count=0
 fail_count=0
 
-# 遍歷測試
 for test_case in "${tests[@]}"; do
-    # 分離命令和預期結果
     cmd=$(echo "$test_case" | cut -d ' ' -f 1)
     expected_result=$(echo "$test_case" | cut -d ' ' -f 2)
 
     echo "> Test command: ./qcc $cmd"
     echo "----------------------------------------"
 
-    # 執行測試命令
     ./qcc $cmd
 
-    # 檢查命令的退出狀態
     if [ $? -eq $expected_result ]; then
         echo "========================================"
         ((pass_count++))
@@ -36,7 +32,6 @@ for test_case in "${tests[@]}"; do
     
 done
 
-# 計算通過率
 pass_rate=$(echo "scale=2; $pass_count * 100 / $total_tests" | bc)
 
 echo "#######################################"
