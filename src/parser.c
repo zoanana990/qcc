@@ -168,6 +168,8 @@ struct ast_node *binary_expression(int ptp) {
         left = ast_makeNode(arithmetic_operator(token_type), 0, left, right);
 
         token_type = token.token;
+        if(token_type == T_EOF)
+            return left;
     }
 
     return left;
