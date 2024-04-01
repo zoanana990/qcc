@@ -34,7 +34,7 @@ done
 
 pass_rate=$(echo "scale=2; $pass_count * 100 / $total_tests" | bc)
 
-echo "#######################################"
+echo "########################################"
 echo "Total Tests: $total_tests"
 echo "Passed: $pass_count"
 echo "Failed: $fail_count"
