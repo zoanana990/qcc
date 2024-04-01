@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     }
 
     scan(&token);
-    n = binary_expression();
+    n = binary_expression(0);
 
     printf("%d\n", ast_interpreter(n));
 

@@ -2,4 +2,4 @@
 
 #include <ast.h>
 
-struct ast_node *binary_expression(void);
+struct ast_node *binary_expression(int ptp);

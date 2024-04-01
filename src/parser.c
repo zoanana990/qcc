@@ -121,9 +121,54 @@ struct ast_node *additive_expression(void) {
     return left;
 }
 
-/**
- * <expression>:=<additive expression>
- */
-struct ast_node *binary_expression(void) {
-    return additive_expression();
+static int operator_precedence[] = {
+    0,  /* T_EOF */
+    10, /* T_PLUS */
+    10, /* T_MINUX */
+    20, /* T_STAR */
+    20, /* T_SLASH */
+    0   /* T_INTEGER_LITERAL */
+};
+
+static int op_precedence(int token_type) {
+    int precedence = operator_precedence[token_type];
+
+    if(precedence == 0) {
+        fprintf(stderr, "syntax error on line %d, token %d\n", line, token_type);
+        exit(1);
+    }
+
+    return precedence;
+}
+
+struct ast_node *binary_expression(int ptp) {
+    struct ast_node *left, *right;
+    int token_type;
+
+    /**
+     * get the integer literal on the left
+     * fetch the next token at the same time
+     */
+    left = primary();
+
+    /* check the token_type is notend of file */
+    token_type = token.token;
+    if(token_type == T_EOF)
+        return left;
+    
+    /* loop at our level precedence */
+    while(op_precedence(token_type) > ptp) {
+        /* fetch the next integer literal*/
+        scan(&token);
+
+        /* get the right subtree at a higher precedence than us */
+        right = binary_expression(operator_precedence[token_type]);
+
+        /* make a tree node */
+        left = ast_makeNode(arithmetic_operator(token_type), 0, left, right);
+
+        token_type = token.token;
+    }
+
+    return left;
 }
